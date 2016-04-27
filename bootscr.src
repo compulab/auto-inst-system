@@ -1,0 +1,20 @@
+#System installation for CL-SOM-AM57x
+
+# Next run parameters
+setenv bootcmd_emmc 'setenv mmcdev 0; run mmcbootscript; setenv mmcdev 1; run emmcboot; run nandboot;'
+setenv bootcmd 'setenv bootcmd $bootcmd_emmc; saveenv; setenv mmcdev 1; run emmcboot;'
+saveenv
+
+# Parameters
+setenv tty "ttyO2,115200"
+setenv ramimg "install_fs.img"
+setenv bootargs "root=/dev/ram0 rw ramdisk_size=16384 console=$tty vram=16M"
+setenv fdtfile ramdisk.dtb
+setenv kernel kernel.img
+
+# Script start
+load mmc ${mmcdev} ${fdtaddr} ${fdtfile}
+load mmc ${mmcdev} ${loadaddr} ${kernel}
+load mmc ${mmcdev} ${rdaddr} ${ramimg}
+echo "Starting modulle installation ..."
+bootz ${loadaddr} ${rdaddr} ${fdtaddr}
