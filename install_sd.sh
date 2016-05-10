@@ -21,7 +21,7 @@ count_down()
 
 ##### Main #####
 
-count_down "Any key to cancel installation" 5
+count_down "Press any key to cancel installation" 5
 if [ $? -eq 0 ]
 then
         echo "Installation aboeted"
@@ -37,7 +37,7 @@ for i in /etc/init.d/S??*.sh ;do
 done
 
 echo "Please remove installation SD card ..."
-count_down "Any key to cancel restart" 5
+count_down "Press any key to cancel restart" 5
 if [ $? -eq 0 ]
 then
         echo "Restart aboeted"
