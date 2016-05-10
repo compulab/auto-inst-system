@@ -20,6 +20,15 @@ count_down()
 }
 
 ##### Main #####
+# Constants
+AUTO_INSTALL="auto_install"
+
+# Get kernel command line
+k_command=$(cat /proc/cmdline)
+# Exit if automatic installation is not needed
+if [ ! -z "${k_command##*$AUTO_INSTALL*}" ] ;then
+	exit 0
+fi
 
 count_down "Press any key to cancel installation" 5
 if [ $? -eq 0 ]
