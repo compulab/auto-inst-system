@@ -7,8 +7,8 @@ saveenv
 
 # Parameters
 setenv tty "ttyO2,115200"
-setenv ramimg "install_fs.img"
 setenv bootargs "root=/dev/ram0 rw ramdisk_size=16384 console=$tty vram=16M"
+setenv ramimg "ramdisk.img"
 setenv fdtfile ramdisk.dtb
 setenv kernel kernel.img
 
