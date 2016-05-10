@@ -14,5 +14,5 @@ echo $printk_config > /proc/sys/kernel/printk
 echo "Update user space file system..."
 mount -t proc none /media/rootfs/proc
 mount -o bind /dev /media/rootfs/dev
-chroot /media/rootfs /usr/local/mydebs/install.sh 1>&- 2>&-
+chroot /media/rootfs /usr/local/mydebs/install.sh > /dev/null 2>&1
 sync
