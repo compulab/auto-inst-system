@@ -14,7 +14,7 @@ The following files should be placed/updated in the RAM disk file system:
 Installation SD card files
 --------------------------
 bootscr.img - boot script image
-install_fs.img - RAM disk image
+ramdisk.img - RAM disk image
 kernel.img - installation kernel image
 ramdisk.dtb - installation device tree
 debian-armhf-image.tar.bz2 - file system image
