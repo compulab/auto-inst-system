@@ -33,7 +33,7 @@ fi
 count_down "Press any key to cancel installation" 5
 if [ $? -eq 0 ]
 then
-        echo "Installation aboeted"
+        echo "Installation aborted"
         exit 0;
 fi
 
@@ -49,7 +49,7 @@ echo "Please remove installation SD card ..."
 count_down "Press any key to cancel restart" 5
 if [ $? -eq 0 ]
 then
-        echo "Restart aboeted"
+        echo "Restart aborted"
         exit 0;
 fi
 # Rebooting system
