@@ -30,7 +30,8 @@ echo $PRINTK_NONE > /proc/sys/kernel/printk
 mkdir -p /media/rootfs && mount /dev/mmcblk0p2 /media/rootfs
 echo $printk_config > /proc/sys/kernel/printk
 echo "Copy kernel files ..."
-cp /media/source/kernel/* /media/boot && sync
+cp /media/source/*.dtb /media/boot && sync
+cp /media/source/zImage* /media/boot && sync
 echo "Extract user space ..."
 tar --numeric-owner -xvpjf /media/source/debian-armhf-image.tar.bz2 -C /media/rootfs > /dev/null && sync
 

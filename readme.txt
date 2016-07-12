@@ -19,5 +19,5 @@ kernel.img - installation kernel image
 ramdisk.dtb - installation device tree
 debian-armhf-image.tar.bz2 - file system image
 rootfs-update - file system update image
-kernel/<module kernel> - module kernel image
-kernel/<module DTB> - module device tree
+<module kernel> - module kernel image
+<module DTB> - module device tree
