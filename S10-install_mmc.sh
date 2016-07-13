@@ -11,14 +11,10 @@ DESTINATION_FILESYSTEM_MOUNT_PATH=/media/rootfs
 
 create_partitions() {
 	echo "Updating partitions..."
-	echo $PRINTK_NONE > /proc/sys/kernel/printk
 	mdev -s && umount ${DESTINATION_KERNEL_MEDIA} 1>&- 2>&- && umount ${DESTINATION_FILESYSTEM_MEDIA} 1>&- 2>&-
-	echo $printk_config > /proc/sys/kernel/printk
 	echo -e "o\nn\np\n1\n2048\n204800\na\n1\nt\nc\nn\np\n2\n204801\n\nw\neof\n" | fdisk -u ${DESTINATION_MEDIA} > /dev/null
 	# Refresh the device nodes
-	echo $PRINTK_NONE > /proc/sys/kernel/printk
 	mdev -s 1>&- 2>&- && umount ${DESTINATION_KERNEL_MEDIA} 1>&- 2>&- && umount ${DESTINATION_FILESYSTEM_MEDIA} 1>&- 2>&-
-	echo $printk_config > /proc/sys/kernel/printk
 }
 
 format_partitions() {
@@ -35,9 +31,7 @@ mount_partitions() {
 	# Mount boot partition
 	mkdir -p ${DESTINATION_KERNEL_MOUNT_PATH} && mount ${DESTINATION_KERNEL_MEDIA} ${DESTINATION_KERNEL_MOUNT_PATH}
 	# Mount root partition
-	echo $PRINTK_NONE > /proc/sys/kernel/printk
 	mkdir -p ${DESTINATION_FILESYSTEM_MOUNT_PATH} && mount ${DESTINATION_FILESYSTEM_MEDIA} ${DESTINATION_FILESYSTEM_MOUNT_PATH}
-	echo $printk_config > /proc/sys/kernel/printk
 }
 
 copy_kernel_files() {
@@ -54,8 +48,10 @@ extract_userspace() {
 
 ##### Main #####
 echo "Install..."
+echo $PRINTK_NONE > /proc/sys/kernel/printk
 create_partitions
 format_partitions
 mount_partitions
 copy_kernel_files
 extract_userspace
+echo $printk_config > /proc/sys/kernel/printk
