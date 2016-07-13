@@ -4,14 +4,10 @@
 PRINTK_NONE="1 1 1 1"
 printk_config=$(cat /proc/sys/kernel/printk)
 
-SOURCE_MEDIA=/dev/mmcblk1p1
 SOURCE_MOUNT_PATH=/media/source
-DESTINATION_MEDIA=/dev/mmcblk0
-DESTINATION_KERNEL_MEDIA=/dev/mmcblk0p1
 DESTINATION_KERNEL_MOUNT_PATH=/media/boot
-FILESYSTEM_ARCHIVE_NAME=debian-armhf-image.tar.bz2
-DESTINATION_FILESYSTEM_MEDIA=/dev/mmcblk0p2
 DESTINATION_FILESYSTEM_MOUNT_PATH=/media/rootfs
+. "/etc/init.d/board_params.sh"
 
 create_partitions() {
 	echo "Updating partitions..."

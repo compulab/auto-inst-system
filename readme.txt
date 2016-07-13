@@ -6,6 +6,7 @@ RAM disk file system
 The following files should be placed/updated in the RAM disk file system:
 /etc/inittab - call to /etc/init.d/install_sd.sh was added
 /etc/init.d/install_sd.sh - main installation script. Call S* installation scripts.
+/etc/init.d/board_params.sh - configuration script for S10-install_mmc.sh and its ilk
 /etc/init.d/S10-install_mmc.sh - Create boot and rootfs partitions on the eMMC
                                - Copy kernel files
                                - Extract the root file system
