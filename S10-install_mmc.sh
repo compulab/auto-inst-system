@@ -8,9 +8,10 @@ SOURCE_MOUNT_PATH=/media/source
 DESTINATION_KERNEL_MOUNT_PATH=/media/boot
 DESTINATION_FILESYSTEM_MOUNT_PATH=/media/rootfs
 . "/etc/init.d/board_params.sh"
+. "/etc/init.d/printing_functions.sh"
 
 create_partitions() {
-	echo "Updating partitions..."
+	announce "Updating partitions"
 	mdev -s && umount ${DESTINATION_KERNEL_MEDIA} 1>&- 2>&- && umount ${DESTINATION_FILESYSTEM_MEDIA} 1>&- 2>&-
 	echo -e "o\nn\np\n1\n2048\n204800\na\n1\nt\nc\nn\np\n2\n204801\n\nw\neof\n" | fdisk -u ${DESTINATION_MEDIA} > /dev/null
 	# Refresh the device nodes
@@ -18,14 +19,14 @@ create_partitions() {
 }
 
 format_partitions() {
-	echo "Format partitions ..."
+	announce "Formatting partitions"
 	ln -sf /proc/mounts /etc/mtab
 	mkfs.vfat -n boot ${DESTINATION_KERNEL_MEDIA} > /dev/null
 	mkfs.ext4 ${DESTINATION_FILESYSTEM_MEDIA} 1>&- 2>&-
 }
 
 mount_partitions() {
-	echo "Mounting partitions ..."
+	announce "Mounting partitions"
 	# Mount source partition
 	mkdir -p ${SOURCE_MOUNT_PATH} && mount ${SOURCE_MEDIA} ${SOURCE_MOUNT_PATH}
 	# Mount boot partition
@@ -35,19 +36,18 @@ mount_partitions() {
 }
 
 copy_kernel_files() {
-	echo "Copy kernel files ..."
+	announce "Copying kernel files"
 	cp ${SOURCE_MOUNT_PATH}/*.dtb ${DESTINATION_KERNEL_MOUNT_PATH} && sync
 	cp ${SOURCE_MOUNT_PATH}/zImage* ${DESTINATION_KERNEL_MOUNT_PATH} && sync
 }
 
-
 extract_userspace() {
-	echo "Extract user space ..."
+	announce "Extracting user space"
 	tar --numeric-owner -xvpjf ${SOURCE_MOUNT_PATH}/${FILESYSTEM_ARCHIVE_NAME} -C ${DESTINATION_FILESYSTEM_MOUNT_PATH} > /dev/null && sync
 }
 
 ##### Main #####
-echo "Install..."
+title "Installing OS"
 echo $PRINTK_NONE > /proc/sys/kernel/printk
 create_partitions
 format_partitions
