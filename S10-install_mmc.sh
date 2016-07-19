@@ -5,8 +5,8 @@ PRINTK_NONE="1 1 1 1"
 printk_config=$(cat /proc/sys/kernel/printk)
 
 SOURCE_MOUNT_PATH=/media/source
-DESTINATION_KERNEL_MOUNT_PATH=/media/boot
 DESTINATION_FILESYSTEM_MOUNT_PATH=/media/rootfs
+DESTINATION_KERNEL_MOUNT_PATH=${DESTINATION_FILESYSTEM_MOUNT_PATH}/boot
 . "/etc/init.d/board_params.sh"
 . "/etc/init.d/printing_functions.sh"
 
@@ -29,21 +29,37 @@ mount_partitions() {
 	announce "Mounting partitions"
 	# Mount source partition
 	mkdir -p ${SOURCE_MOUNT_PATH} && mount ${SOURCE_MEDIA} ${SOURCE_MOUNT_PATH}
-	# Mount boot partition
-	mkdir -p ${DESTINATION_KERNEL_MOUNT_PATH} && mount ${DESTINATION_KERNEL_MEDIA} ${DESTINATION_KERNEL_MOUNT_PATH}
+	# Mount order is important
 	# Mount root partition
 	mkdir -p ${DESTINATION_FILESYSTEM_MOUNT_PATH} && mount ${DESTINATION_FILESYSTEM_MEDIA} ${DESTINATION_FILESYSTEM_MOUNT_PATH}
+	# Mount boot partition onto the rootfs/boot
+	mkdir -p ${DESTINATION_KERNEL_MOUNT_PATH} && mount ${DESTINATION_KERNEL_MEDIA} ${DESTINATION_KERNEL_MOUNT_PATH}
 }
 
 copy_kernel_files() {
 	announce "Copying kernel files"
-	cp ${SOURCE_MOUNT_PATH}/*.dtb ${DESTINATION_KERNEL_MOUNT_PATH} && sync
-	cp ${SOURCE_MOUNT_PATH}/zImage* ${DESTINATION_KERNEL_MOUNT_PATH} && sync
+	files='*.dtb zImage*'
+	for file in ${files};do
+	stat ${SOURCE_MOUNT_PATH}/${file} &>/dev/null
+	[ $? -eq 0 ] && cp -v ${SOURCE_MOUNT_PATH}/${file} ${DESTINATION_KERNEL_MOUNT_PATH}
+	done
 }
 
 extract_userspace() {
 	announce "Extracting user space"
-	tar --numeric-owner -xvpjf ${SOURCE_MOUNT_PATH}/${FILESYSTEM_ARCHIVE_NAME} -C ${DESTINATION_FILESYSTEM_MOUNT_PATH} > /dev/null && sync
+	which pv &>/dev/null
+	if [ $? -eq 0 ];then
+	pv ${SOURCE_MOUNT_PATH}/${FILESYSTEM_ARCHIVE_NAME} | tar --numeric-owner -xpjf - -C ${DESTINATION_FILESYSTEM_MOUNT_PATH} > /dev/null && sync
+	else
+	tar --numeric-owner -xpjf ${SOURCE_MOUNT_PATH}/${FILESYSTEM_ARCHIVE_NAME} -C ${DESTINATION_FILESYSTEM_MOUNT_PATH} > /dev/null && sync
+	fi
+}
+
+unmount_partitions() {
+	announce "Unmounting partitions"
+	umount ${DESTINATION_KERNEL_MEDIA}
+	umount ${DESTINATION_FILESYSTEM_MEDIA}
+	umount ${SOURCE_MEDIA}
 }
 
 ##### Main #####
@@ -54,4 +70,5 @@ format_partitions
 mount_partitions
 copy_kernel_files
 extract_userspace
+unmount_partitions
 echo $printk_config > /proc/sys/kernel/printk
