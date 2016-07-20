@@ -1,7 +1,7 @@
 #!/bin/bash
 
 mpoint=/tmp/_mount
-tarfile=debian-armhf-image.tar.bz2
+tarfile=rootfs.tar.bz2
 mfile=install.ext2
 boart_param_file=/etc/init.d/board_params.sh
 
