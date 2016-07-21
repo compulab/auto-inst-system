@@ -30,5 +30,12 @@ install.ext2.mk - ext2 image creator
 	run it from the current direcory
 	select a desire platform
 	result: install.ext2 in the current directory
-	copy the install.ext2 into the root directory
+	copy the file into the root directory
+	of an installation SD card.
+
+bootscr.mk - bootscr.img creator
+	run it from the current direcory
+	select a desire platform
+	result: bootscr.img in the current directory
+	copy the file into the root directory
 	of an installation SD card.
