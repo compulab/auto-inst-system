@@ -1,0 +1,13 @@
+#System installation for CL-SOM-iMX6/CM-FX6
+
+# Next run parameters
+setenv bootcmd_installed 'env dafault -a; saveenv; run setupsataboot; sata init; run trybootsmz'
+setenv bootcmd 'setenv bootcmd $bootcmd_installed'
+saveenv
+
+# Parameters
+setenv tty "ttymxc3,115200"
+setenv mmcdev 2
+setenv loadaddr 0x10800000
+setenv fdtaddr 0x15000000
+setenv rdaddr 0x12000000
