@@ -26,16 +26,21 @@ rootfs-update - file system update image
 
 Tools
 --------------------------
-install.ext2.mk - ext2 image creator
+tools/install.ext2.mk - ext2 image creator
 	run it from the current direcory
 	select a desire platform
 	result: install.ext2 in the current directory
 	copy the file into the root directory
 	of an installation SD card.
+	Sample run:
+	./tools/install.ext2.mk
+	
 
-bootscr.mk - bootscr.img creator
+tools/bootscr.mk - bootscr.img creator
 	run it from the current direcory
 	select a desire platform
 	result: bootscr.img in the current directory
 	copy the file into the root directory
 	of an installation SD card.
+	Sample run:
+	./tools/bootscr.mk
