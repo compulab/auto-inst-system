@@ -26,6 +26,6 @@ sudo hdparm -z ${device}
 sleep 0.5
 mpoint=$(udisks --mount ${device} | awk '$0=$NF')
 [ $? -eq 0 ] || exit 2
-sudo cp -v common/* platform/${platform}/* ${mpoint}
+sudo cp -v common/*.sh platform/${platform}/*.sh ${mpoint}
 udisks --unmount ${device}
 sudo losetup -d ${device}
