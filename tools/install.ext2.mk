@@ -16,7 +16,7 @@ select i in $select_string; do
 	esac
 done
 
-installer=/tmp/install.ext2
+installer=install.ext2
 size_inm=1
 dd if=/dev/zero of=${installer} count=${size_inm} bs=1M
 echo "y" | mkfs.ext2 -L installer.${platform} ${installer}
