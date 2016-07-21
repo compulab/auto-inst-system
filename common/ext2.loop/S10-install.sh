@@ -21,8 +21,8 @@ create_partitions() {
 format_partitions() {
 	announce "Formatting partitions"
 	ln -sf /proc/mounts /etc/mtab
-	mkfs.vfat -n boot ${DESTINATION_KERNEL_MEDIA} > /dev/null
-	mkfs.ext4 ${DESTINATION_FILESYSTEM_MEDIA} 1>&- 2>&-
+	mkfs.ext2 -L boot ${DESTINATION_KERNEL_MEDIA} 1>&- 2>&-
+	mkfs.ext4 -L rootfs ${DESTINATION_FILESYSTEM_MEDIA} 1>&- 2>&-
 }
 
 mount_partitions() {
