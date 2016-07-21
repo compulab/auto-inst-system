@@ -7,14 +7,3 @@ saveenv
 
 # Parameters
 setenv tty "ttyO2,115200"
-setenv ramimg "ramdisk.img"
-setenv bootargs "root=/dev/ram0 rw ramdisk_size=16384 console=$tty vram=16M auto_install"
-setenv fdtfile ramdisk.dtb
-setenv kernel kernel.img
-
-# Script start
-load mmc ${mmcdev} ${fdtaddr} ${fdtfile}
-load mmc ${mmcdev} ${loadaddr} ${kernel}
-load mmc ${mmcdev} ${rdaddr} ${ramimg}
-echo "Starting modulle installation ..."
-bootz ${loadaddr} ${rdaddr} ${fdtaddr}

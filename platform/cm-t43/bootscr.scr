@@ -7,18 +7,7 @@ saveenv
 
 # Parameters
 setenv tty "ttyO0,115200"
-setenv ramimg "ramdisk.img"
-setenv bootargs "root=/dev/ram0 rw ramdisk_size=16384 console=$tty vram=16M auto_install"
-setenv fdtfile am437x-sb-som-t43.dtb
-setenv kernel kernel.img
 setenv mmcdev 0
 setenv loadaddr 0x80200000
 setenv fdtaddr 0x81200000
 setenv rdaddr 0x82200000
-
-# Script start
-load mmc ${mmcdev} ${fdtaddr} ${fdtfile}
-load mmc ${mmcdev} ${loadaddr} ${kernel}
-load mmc ${mmcdev} ${rdaddr} ${ramimg}
-echo "Starting module installation ..."
-bootz ${loadaddr} ${rdaddr} ${fdtaddr}
