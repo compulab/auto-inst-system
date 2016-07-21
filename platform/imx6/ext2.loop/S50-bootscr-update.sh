@@ -3,13 +3,14 @@
 echo "Running $BASH_SOURCE with $@"
 
 BOARD_PARAM=/etc/init.d/board_params.sh
+DIR=$(dirname $BASH_SOURCE)
 
 [ ! -f ${BOARD_PARAM} ] && exit 1
 . ${BOARD_PARAM}
 
 [ -z $DESTINATION_KERNEL_MEDIA ] && exit 2
 
-boot_scr=$([[ ${DESTINATION_KERNEL_MEDIA} =~ "mmc" ]] &&  echo "boot.mmc.scr" || echo "boot.sata.scr" )
+boot_scr=${DIR}/$([[ ${DESTINATION_KERNEL_MEDIA} =~ "mmc" ]] &&  echo "boot.mmc.scr" || echo "boot.sata.scr" )
 
 stat $boot_scr &>/dev/null
 [ $? -ne 0 ] && exit 3
