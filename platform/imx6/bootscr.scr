@@ -1,7 +1,7 @@
 #System installation for CL-SOM-iMX6/CM-FX6
 
 # Next run parameters
-setenv bootcmd_installed 'env dafault -a; saveenv; run setupsataboot; sata init; run trybootsmz'
+setenv bootcmd_installed 'env default -a; saveenv; run setupsataboot; sata init; run trybootsmz'
 setenv bootcmd 'setenv bootcmd $bootcmd_installed'
 saveenv
 
