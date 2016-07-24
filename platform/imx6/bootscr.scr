@@ -2,7 +2,7 @@
 
 # Next run parameters
 setenv bootcmd_installed 'env default -a; saveenv; run setupsataboot; sata init; run trybootsmz'
-setenv bootcmd 'setenv bootcmd $bootcmd_installed'
+setenv bootcmd $bootcmd_installed
 saveenv
 
 # Parameters
