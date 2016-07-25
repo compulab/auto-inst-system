@@ -1,20 +1,7 @@
 #!/bin/bash
 
-platform=""
-select_string=$(ls platform/; echo "<<")
-PS3="select a platform > "
-select i in $select_string; do
-	case $i in
-		"<<")
-		exit
-		break
-		;;
-		*)
-		platform=$i
-		break
-		;;
-	esac
-done
+common=$(dirname $BASH_SOURCE)/common.sh
+[ -f ${common} ] && . ${common}
 
 ibootscr=bootscr.in
 obootscr=bootscr.img

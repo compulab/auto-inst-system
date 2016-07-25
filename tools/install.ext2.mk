@@ -1,31 +1,18 @@
 #!/bin/bash
 
-platform=""
-select_string=$(ls platform/; echo "<<")
-PS3="select a platform > "
-select i in $select_string; do
-	case $i in
-		"<<")
-		exit
-		break
-		;;
-		*)
-		platform=$i
-		break
-		;;
-	esac
-done
+common=$(dirname $BASH_SOURCE)/common.sh
+[ -f ${common} ] && . ${common}
 
 installer=install.ext2
 size_inm=1
+mpoint=$(mktemp -d)
 dd if=/dev/zero of=${installer} count=${size_inm} bs=1M
 echo "y" | mkfs.ext2 -L installer.${platform} ${installer}
-device=$(sudo losetup -sf ${installer})
-[ $? -eq 0 ] || exit 1
-sudo hdparm -z ${device}
-sleep 0.5
-mpoint=$(udisks --mount ${device} | awk '$0=$NF')
-[ $? -eq 0 ] || exit 2
-sudo cp -v common/ext2.loop/* platform/${platform}/ext2.loop/* ${mpoint}
-udisks --unmount ${device}
-sudo losetup -d ${device}
+sudo mount -o loop ${installer} ${mpoint}
+if  [ $? -eq 0 ];then
+	for src in common platform/${platform};do
+		sudo cp -v ${src}/ext2.loop/* ${mpoint} 2>/dev/null
+	done
+	sudo umount -l ${mpoint}
+fi
+rm -rf ${mpoint}
