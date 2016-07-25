@@ -62,6 +62,10 @@ unmount_partitions() {
 	umount ${SOURCE_MEDIA}
 }
 
+## Preinstallation Sanicty Check ##
+[ $(basename $BASH_SOURCE) == $(basename $0) ] && EXIT="exit 1" || EXIT="return 1"
+[ -z ${FILESYSTEM_ARCHIVE_NAME} ] && ${EXIT}
+
 ##### Main #####
 title "Installing OS"
 echo $PRINTK_NONE > /proc/sys/kernel/printk
