@@ -24,7 +24,6 @@ for dev in ${all_devs};do
 				if [ $? -eq 0 ];then
 					source=$_dev
 					# eliminate the device from the available device list
-					[ ! -z ${dev} ] && ((cnt--))
 					dev=""
 					((cnt--))
 					# the rootfs tar ball has to be here
