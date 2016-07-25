@@ -16,12 +16,22 @@ for dev in ${all_devs};do
 	for _dev in $(ls /dev/${dev}*);do
 		mount $_dev ${mpoint} 2>/dev/null
 		if [ $? -eq 0 ];then
+			# 1-st validation
 			if [ -z $source ];then
+				# make sure that the magic file is on the media
+				# magic file is install.ext2
 				stat ${mpoint}/${mfile} &>/dev/null
 				if [ $? -eq 0 ];then
 					source=$_dev
+					# eliminate the device from the available device list
+					[ ! -z ${dev} ] && ((cnt--))
 					dev=""
 					((cnt--))
+					# the rootfs tar ball has to be here
+					# if not, clear the tarfile variable name
+					# it makes the S10 script skip the entire
+					# installation process
+					[ ! -f ${mpoint}/${tarfile} ] && tarfile=""
 				fi
 			fi
 		umount -l ${mpoint}
