@@ -10,8 +10,12 @@ all_devs=$(ls /sys/class/block/*/capability | awk -F"/" '($5~/sd|mmc/)&&($0=$5)'
 avail_devs=""
 cnt=0
 source=""
+min_size_inb=2097152
 mkdir -p ${mpoint}
 for dev in ${all_devs};do
+	# Device size check
+	size=$(cat /sys/class/block/${dev}/size)
+	[ $size -lt ${min_size_inb} ] && continue
 	((cnt++))
 	for _dev in $(ls /dev/${dev}*);do
 		mount $_dev ${mpoint} 2>/dev/null
