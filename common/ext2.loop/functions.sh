@@ -45,13 +45,17 @@ copy_kernel_files() {
 }
 
 extract_userspace() {
-	announce "Extracting user space"
+	[ -z $1 ] && patt=${SOURCE_MOUNT_PATH}/${FILESYSTEM_ARCHIVE_NAME} || patt=$1
 	which pv &>/dev/null
-	if [ $? -eq 0 ];then
-	pv ${SOURCE_MOUNT_PATH}/${FILESYSTEM_ARCHIVE_NAME} | tar --numeric-owner -xpjf - -C ${DESTINATION_FILESYSTEM_MOUNT_PATH} > /dev/null && sync
+	_pv=$?
+	for _file in ${patt};do
+	announce "Extracting user space $(basename $_file)"
+	if [ $_pv -eq 0 ];then
+		pv ${_file} | tar --numeric-owner -xpjf - -C ${DESTINATION_FILESYSTEM_MOUNT_PATH} > /dev/null && sync
 	else
-	tar --numeric-owner -xpjf ${SOURCE_MOUNT_PATH}/${FILESYSTEM_ARCHIVE_NAME} -C ${DESTINATION_FILESYSTEM_MOUNT_PATH} > /dev/null && sync
+		tar --numeric-owner -xpjf ${_file} -C ${DESTINATION_FILESYSTEM_MOUNT_PATH} > /dev/null && sync
 	fi
+	done
 }
 
 unmount_partitions() {
