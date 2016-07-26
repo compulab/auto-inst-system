@@ -8,7 +8,7 @@ SOURCE_MOUNT_PATH=/media/source
 DESTINATION_FILESYSTEM_MOUNT_PATH=/media/rootfs
 DESTINATION_KERNEL_MOUNT_PATH=${DESTINATION_FILESYSTEM_MOUNT_PATH}/boot
 . "/etc/init.d/board_params.sh"
-. "/etc/init.d/printing_functions.sh"
+. "/etc/init.d/functions.sh"
 
 create_partitions() {
 	announce "Updating partitions"
