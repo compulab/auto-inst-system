@@ -15,7 +15,17 @@ bootscr.img - boot script image
 ramdisk.img - RAM disk image
 kernel.img - installation kernel image
 ramdisk.dtb - installation device tree
+
 rootfs.tar.bz2 - file system image
+	if the file is not provided
+	the S10-install exits with an error
+	the main stript continues the script list execution
+
+*.update.tar.bz2 - file system update image(s)
+	if there are no files that match the pattern
+	the S30-update exits with an error
+	the main stript continues the script list execution
+
 install.ext2   - etx2 image that contains all:
 	common and platform specific installaton scripts.
 install.sh     - ext2 image mounter
