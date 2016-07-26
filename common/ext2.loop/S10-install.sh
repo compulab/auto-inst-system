@@ -11,8 +11,10 @@ DESTINATION_KERNEL_MOUNT_PATH=${DESTINATION_FILESYSTEM_MOUNT_PATH}/boot
 . "/etc/init.d/functions.sh"
 
 ## Preinstallation Sanicty Check ##
-[ $(basename $BASH_SOURCE) == $(basename $0) ] && EXIT="exit 1" || EXIT="return 1"
-[ -z ${FILESYSTEM_ARCHIVE_NAME} ] && ${EXIT}
+[ $(basename $BASH_SOURCE) == $(basename $0) ] && EXIT="exit" || EXIT="return"
+[ -z ${FILESYSTEM_ARCHIVE_NAME} ] && ${EXIT} 1
+[ -z ${DESTINATION_MEDIA} ] && ${EXIT} 2
+[ -z ${SOURCE_MEDIA} ] && ${EXIT} 3
 
 ##### Main #####
 title "Installing OS"
