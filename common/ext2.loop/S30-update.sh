@@ -1,45 +1,25 @@
-#!/bin/bash
+#!/bin/sh
 
-echo "Running $BASH_SOURCE with $@"
+##### Constants #####
+PRINTK_NONE="1 1 1 1"
+printk_config=$(cat /proc/sys/kernel/printk)
 
-BOARD_PARAM=/etc/init.d/board_params.sh
-ROOTFS_FILE_PATT=*.update.tar.bz2
+SOURCE_MOUNT_PATH=/media/source
+DESTINATION_FILESYSTEM_MOUNT_PATH=/media/rootfs
+DESTINATION_KERNEL_MOUNT_PATH=${DESTINATION_FILESYSTEM_MOUNT_PATH}/boot
+ROOTFS_FILE_UPDATE=*.update.tar.bz2
+. "/etc/init.d/board_params.sh"
+. "/etc/init.d/functions.sh"
 
-[ ! -f ${BOARD_PARAM} ] && exit 1
-. ${BOARD_PARAM}
+## Preinstallation Sanicty Check ##
+[ $(basename $BASH_SOURCE) == $(basename $0) ] && EXIT="exit" || EXIT="return"
+[ -z ${DESTINATION_MEDIA} ] && ${EXIT} 1
+[ -z ${SOURCE_MEDIA} ] && ${EXIT} 2
 
-[ -z $DESTINATION_MEDIA ] && exit 2
-[ -z $SOURCE_MEDIA ] && exit 3
-
-part_pref=$([[ ${DESTINATION_MEDIA} =~ "mmc" ]] &&  echo -n "p")
-
-ROOT=${DESTINATION_MEDIA}${part_pref}2
-BOOT=${DESTINATION_MEDIA}${part_pref}1
-
-SRC_DIR=$(mktemp -du)
-DST_DIR=$(mktemp -du)
-OUT_FILE=${DST_DIR}/_out_file
-
-mkdir -p ${SRC_DIR} && mount ${SOURCE_MEDIA} ${SRC_DIR}
-ls ${SRC_DIR}/${ROOTFS_FILE_PATT} &>/dev/null
-if [ $? -eq 0 ];then
-	mkdir -p ${DST_DIR} && mount ${ROOT} ${DST_DIR}
-	mount ${BOOT} ${DST_DIR}/boot
-	for _file in ${SRC_DIR}/${ROOTFS_FILE_PATT};do
-	echo 'Processing file '$(basename $_file)
-	which pv &>/dev/null
-	if [ $? -eq 0 ];then
-		pv ${_file} | tar --numeric-owner -xpjf - -C ${DST_DIR} > /dev/null && sync
-	else
-		tar --numeric-owner -xpjf ${_file} -C ${DST_DIR} > /dev/null && sync
-	fi
-	done
-	umount -l ${DST_DIR}/boot
-	umount -l ${DST_DIR}
-	rm -rf ${DST_DIR}
-else
-	echo "Nothing to update ..."
-fi
-
-umount -l ${SRC_DIR}
-rm -rf ${SRC_DIR}
+##### Main #####
+title "Updating OS"
+echo $PRINTK_NONE > /proc/sys/kernel/printk
+mount_partitions
+extract_userspace "${SOURCE_MOUNT_PATH}/${ROOTFS_FILE_UPDATE}"
+unmount_partitions
+echo $printk_config > /proc/sys/kernel/printk
