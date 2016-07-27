@@ -30,9 +30,13 @@ mount_partitions() {
 	mkdir -p ${SOURCE_MOUNT_PATH} && mount ${SOURCE_MEDIA} ${SOURCE_MOUNT_PATH}
 	# Mount order is important
 	# Mount root partition
+	if [ ! -z ${DESTINATION_FILESYSTEM_MEDIA} ];then
 	mkdir -p ${DESTINATION_FILESYSTEM_MOUNT_PATH} && mount ${DESTINATION_FILESYSTEM_MEDIA} ${DESTINATION_FILESYSTEM_MOUNT_PATH}
+	fi
 	# Mount boot partition onto the rootfs/boot
+	if [ ! -z ${DESTINATION_KERNEL_MEDIA} ];then
 	mkdir -p ${DESTINATION_KERNEL_MOUNT_PATH} && mount ${DESTINATION_KERNEL_MEDIA} ${DESTINATION_KERNEL_MOUNT_PATH}
+	fi
 }
 
 copy_kernel_files() {
@@ -60,7 +64,7 @@ extract_userspace() {
 
 unmount_partitions() {
 	announce "Unmounting partitions"
-	umount ${DESTINATION_KERNEL_MEDIA}
-	umount ${DESTINATION_FILESYSTEM_MEDIA}
-	umount ${SOURCE_MEDIA}
+	[ ! -z ${DESTINATION_KERNEL_MEDIA} ] && umount -l ${DESTINATION_KERNEL_MEDIA}
+	[ ! -z ${DESTINATION_FILESYSTEM_MEDIA} ] && umount -l ${DESTINATION_FILESYSTEM_MEDIA}
+	umount -l ${SOURCE_MEDIA}
 }
