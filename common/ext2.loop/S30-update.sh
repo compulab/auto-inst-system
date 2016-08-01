@@ -16,10 +16,12 @@ ROOTFS_FILE_UPDATE=*.update.tar.bz2
 [ -z ${DESTINATION_MEDIA} ] && ${EXIT} 1
 [ -z ${SOURCE_MEDIA} ] && ${EXIT} 2
 
+stat ${SOURCE_MOUNT_PATH}/${ROOTFS_FILE_UPDATE} &>/dev/null || ${EXIT} 3
+
 ##### Main #####
 title "Updating OS"
 echo $PRINTK_NONE > /proc/sys/kernel/printk
-mount_partitions
+mount_destination
 extract_userspace "${SOURCE_MOUNT_PATH}/${ROOTFS_FILE_UPDATE}"
-unmount_partitions
+unmount_destination
 echo $printk_config > /proc/sys/kernel/printk
