@@ -1,0 +1,15 @@
+#System installation for CM-T335
+
+# Next run parameters
+setenv disp_type lcd
+setenv nandargs 'setenv bootargs console=${console} root=${nandroot} rootfstype=${nandrootfstype} ubi.mtd=${rootfs_name} cm_t335_disp=${disp_type}'
+setenv bootcmd 'run nandargs; nboot ${loadaddr} nand0 900000; bootm ${loadaddr}'
+saveenv
+# Parameters
+setenv rdaddr 0x81000000
+
+setenv bootargs "root=/dev/ram0 rw ramdisk_size=16384 console=${console} vram=16M auto_install"
+mmc rescan
+load mmc 0:1 $loadaddr kernel.img
+load mmc 0:1 $rdaddr ramdisk.img
+bootm $loadaddr $rdaddr 
