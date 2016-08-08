@@ -1,14 +1,5 @@
-#System installation for CL-SOM-AM57x
-
-# Next run parameters
-setenv bootcmd_emmc 'setenv mmcdev 0; run mmcbootscript; setenv mmcdev 1; run emmcboot; run nandboot;'
-setenv bootcmd 'setenv bootcmd $bootcmd_emmc; saveenv; setenv mmcdev 1; run emmcboot;'
-saveenv
-
-# Parameters
-setenv tty "ttyO2,115200"
-setenv ramimg "ramdisk.img"
 setenv bootargs "root=/dev/ram0 rw ramdisk_size=16384 console=$tty vram=16M auto_install"
+setenv ramimg ramdisk.img
 setenv fdtfile ramdisk.dtb
 setenv kernel kernel.img
 

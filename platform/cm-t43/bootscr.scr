@@ -1,0 +1,13 @@
+#System installation for CM-T43
+
+# Next run parameters
+setenv bootcmd_orig "$bootcmd"
+setenv bootcmd 'setenv bootcmd $bootcmd_orig; setenv bootcmd_orig ; saveenv; run bootcmd'
+saveenv
+
+# Parameters
+setenv tty "ttyO0,115200"
+setenv mmcdev 0
+setenv loadaddr 0x80200000
+setenv fdtaddr 0x81200000
+setenv rdaddr 0x82200000
