@@ -1,0 +1,64 @@
+#!/bin/bash
+#   ---------------------------------------------
+#   Common settings
+#   ---------------------------------------------
+# set level of messages printed to console 
+dmesg -n 1
+
+# set hostname
+HOSTNAME=cl-ramdisk
+hostname $HOSTNAME
+
+#   ---------------------------------------------
+#   Setup the bin file location and export to system PATH
+#   ---------------------------------------------
+PATH=/sbin:/bin:/usr/sbin:/usr/bin
+export PATH
+
+#   ---------------------------------------------
+#   Wait a little to avoid trailing kernel output
+#   ---------------------------------------------
+sleep 1
+
+#   ---------------------------------------------
+#   Assigns permissions
+#   ---------------------------------------------
+umask 022
+
+#   ---------------------------------------------
+#   Mount the filesystem directories
+#   ---------------------------------------------
+mount -a
+
+#   ---------------------------------------------
+#   Mounting /dev/pts 
+#   ---------------------------------------------
+mkdir /dev/pts
+mount -t devpts devpts /dev/pts -o mode=0622
+
+#   ---------------------------------------------
+#   Enabling hot-plug 
+#   ---------------------------------------------
+echo "/sbin/mdev" > /proc/sys/kernel/hotplug
+
+#   ---------------------------------------------
+#   Create device nodes and directories 
+#   ---------------------------------------------
+/sbin/mdev -s
+
+mkdir /var/lock
+mkdir /var/run
+
+#   ---------------------------------------------
+#   Set host and config loopback interface
+#   ---------------------------------------------
+ifconfig lo 127.0.0.1
+
+#   ---------------------------------------------
+#   System details 
+#   ---------------------------------------------
+cat << eof_motd
+
+	Kernel release : $(uname -s) $(uname -r)
+
+eof_motd
