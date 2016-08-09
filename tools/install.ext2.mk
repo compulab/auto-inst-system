@@ -3,7 +3,7 @@
 common=$(dirname $BASH_SOURCE)/common.sh
 [ -f ${common} ] && . ${common}
 
-installer=install.ext2
+installer=install.ext2.${platform}
 size_inm=1
 mpoint=$(mktemp -d)
 dd if=/dev/zero of=${installer} count=${size_inm} bs=1M

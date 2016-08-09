@@ -15,7 +15,17 @@ bootscr.img - boot script image
 ramdisk.img - RAM disk image
 kernel.img - installation kernel image
 ramdisk.dtb - installation device tree
+
 rootfs.tar.bz2 - file system image
+	if the file is not provided
+	the S10-install exits with an error
+	the main stript continues the script list execution
+
+*.update.tar.bz2 - file system update image(s)
+	if there are no files that match the pattern
+	the S30-update exits with an error
+	the main stript continues the script list execution
+
 install.ext2   - etx2 image that contains all:
 	common and platform specific installaton scripts.
 install.sh     - ext2 image mounter
@@ -28,19 +38,23 @@ Tools
 --------------------------
 tools/install.ext2.mk - ext2 image creator
 	run it from the current direcory
-	select a desire platform
-	result: install.ext2 in the current directory
+	select a desire platform (or export the platform environment variable)
+	result: install.ext2.${platform} in the current directory
 	copy the file into the root directory
 	of an installation SD card.
 	Sample run:
+	export platform=imx6
 	./tools/install.ext2.mk
+	cp install.ext2.imx6 <sd-installer-mount-point>/install.ext2
 	
 
 tools/bootscr.mk - bootscr.img creator
 	run it from the current direcory
-	select a desire platform
-	result: bootscr.img in the current directory
+	select a desire platform (or export the platform environment variable)
+	result: boot.scr.${platform} in the current directory
 	copy the file into the root directory
 	of an installation SD card.
 	Sample run:
+	export platform=imx6
 	./tools/bootscr.mk
+	cp boot.scr.imx6 <sd-installer-mount-point>/boot.scr
