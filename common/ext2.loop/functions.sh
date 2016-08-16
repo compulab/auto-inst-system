@@ -135,7 +135,7 @@ unmount_partitions() {
 
 flash_erase() {
 	announce "$FUNCNAME [ $@ ]"
-	dev=$1; off=$2; cnt=$0
+	dev=$1; off=$2; cnt=$3
 	[ -z $dev ] || [ -z $cnt ] || [ -z $off ] && return
 	mtd="/dev/mtd"${dev}
 	${FLASHERASE} ${mtd} ${off} ${cnt}
