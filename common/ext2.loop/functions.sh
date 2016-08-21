@@ -1,4 +1,4 @@
-. "/etc/init.d/messages.sh"
-. "/etc/init.d/partition_init.sh"
-. "/etc/init.d/mount.sh"
-. "/etc/init.d/partition_update.sh"
+. "${SCR_PATH}/messages.sh"
+. "${SCR_PATH}/partition_init.sh"
+. "${SCR_PATH}/mount.sh"
+. "${SCR_PATH}/partition_update.sh"

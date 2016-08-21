@@ -3,9 +3,10 @@
 ##### Constants #####
 PRINTK_NONE="1 1 1 1"
 UPDATE_FS=rootfs-update
+SCR_PATH=/root/install
 
 ##### External Scripts #####
-. "/etc/init.d/printing_functions.sh"
+. "${SCR_PATH}/functions.sh"
 
 ##### Main #####
 # Save printk configuration

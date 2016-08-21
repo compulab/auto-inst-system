@@ -1,9 +1,10 @@
 #!/bin/bash
 
+SCR_PATH=/root/install
 mpoint=/tmp/_mount
 tarfile=rootfs.tar.bz2
 mfile=install.ext2
-boart_param_file=/etc/init.d/board_params.sh
+boart_param_file=${SCR_PATH}/board_params.sh
 
 destination=""
 avail_devs=""

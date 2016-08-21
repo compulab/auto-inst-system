@@ -1,6 +1,6 @@
 #!/bin/bash
 
-mpoint=/etc/init.d
+mpoint=/root/install
 mfile=install.sh
 
 all_devs=$(ls /sys/class/block/*/capability | awk -F"/" '($5~/sd|mmc/)&&($0=$5)')

@@ -1,10 +1,11 @@
 #!/bin/sh
 
 PRINTK_NONE="1 1 1 1"
+SCR_PATH=/root/install
 #set -xv
 
 ##### External Scripts #####
-. "/etc/init.d/functions.sh"
+. "${SCR_PATH}/functions.sh"
 
 ENV_DEVICE_NUM=1
 ENV_DEVICE="/dev/mtd"$ENV_DEVICE_NUM
