@@ -11,7 +11,7 @@ echo "y" | mkfs.ext2 -L installer.${platform} ${installer}
 sudo mount -o loop ${installer} ${mpoint}
 if  [ $? -eq 0 ];then
 	for src in common platform/${platform};do
-		sudo cp -v ${src}/ext2.loop/* ${mpoint} 2>/dev/null
+		sudo cp -v ${src}/* ${mpoint} 2>/dev/null
 	done
 	sudo umount -l ${mpoint}
 fi
