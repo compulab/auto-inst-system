@@ -1,4 +1,0 @@
-TARGET_KERNEL=uImage-cm-t335
-SOURCE_MEDIA=/media/mmcblk0p1
-DESTINATION_MEDIA=/dev/mtd
-FILESYSTEM_ARCHIVE_NAME=debian-image.tar.bz2
