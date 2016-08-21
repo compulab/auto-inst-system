@@ -15,7 +15,7 @@ title() {
 }
 
 announce() {
-	echo -e "${GREEN}* ${NORMAL}${1}"
+	echo -e "${GREEN}* ${NORMAL}${@}"
 }
 
 create_partitions() {
