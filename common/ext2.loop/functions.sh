@@ -138,7 +138,7 @@ flash_erase() {
 	dev=$1; off=$2; cnt=$3
 	[ -z $dev ] || [ -z $cnt ] || [ -z $off ] && return
 	mtd="/dev/mtd"${dev}
-	${FLASHERASE} ${mtd} ${off} ${cnt}
+	${FLASHERASE} ${mtd} ${off} ${cnt} 1>&- 2>&- 
 }
 
 nand_write() {
@@ -146,7 +146,7 @@ nand_write() {
 	dev=$1; src=$2; off=$3
 	[ -z $dev ] || [ -z $src ] || [ -z $off ] && return
 	mtd='/dev/mtd'${dev}
-	${NANDWRITE} -p ${mtd} -s ${off} ${src}
+	${NANDWRITE} -p ${mtd} -s ${off} ${src} 1>&- 2>&-
 }
 
 ubi_format() {
@@ -154,14 +154,14 @@ ubi_format() {
 	dev=$1
 	[ -z $dev ] && return
 	mtd="/dev/mtd"${dev}
-	${UBIFORAMT} --yes ${mtd}
+	${UBIFORAMT} --yes ${mtd} 1>&- 2>&-
 }
 
 ubi_attach() {
 	announce "$FUNCNAME [ $@ ]"
 	mtd=$1; ubi=$2
 	[ -z $mtd ] || [ -z $ubi ] && return
-	${UBIATTACH} -m ${mtd} -d ${ubi}
+	${UBIATTACH} -m ${mtd} -d ${ubi} 1>&- 2>&-
 }
 
 ubi_detach() {
@@ -176,5 +176,5 @@ ubi_mkvol() {
 	ubi=$1; name=$2
 	[ -z $ubi ] || [ -z $name ] && return
 	ubi='/dev/ubi'${ubi}
-	${UBIMKVOL} ${ubi} -m -N ${name}
+	${UBIMKVOL} ${ubi} -m -N ${name} 1>&- 2>&-
 }
