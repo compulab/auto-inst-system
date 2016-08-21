@@ -4,7 +4,7 @@ SCR_PATH=/root/install
 mpoint=/tmp/_mount
 tarfile=rootfs.tar.bz2
 mfile=install.ext2
-boart_param_file=${SCR_PATH}/board_params.sh
+board_param_file=${SCR_PATH}/board_params.sh
 
 destination=""
 avail_devs=""
@@ -81,7 +81,7 @@ if [ $destination != "/dev/mtd" ];then
 	nand_params=
 fi
 
-cat << eof > ${boart_param_file}
+cat << eof > ${board_param_file}
 SOURCE_MEDIA=${source}
 DESTINATION_MEDIA=${destination}
 DESTINATION_KERNEL_MEDIA=${destination}${part_pref}1
