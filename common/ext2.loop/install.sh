@@ -40,7 +40,7 @@ fi
 
 # Start all init scripts in /root/install
 # executing them in numerical order.
-for i in ${MPOINT}/S??*.sh ;do
+for i in ${MPOINT}/[0-9][0-9]*.sh ;do
 	# Ignore dangling symlinks (if any).
 	[ ! -f "$i" ] && continue
 	. $i
