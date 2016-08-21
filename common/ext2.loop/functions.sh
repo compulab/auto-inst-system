@@ -20,6 +20,7 @@ announce() {
 
 create_partitions() {
 	announce "Updating partitions"
+	[ -z ${NAND_PARAMS} ] || return
 	mdev -s && umount ${DESTINATION_KERNEL_MEDIA} 1>&- 2>&- && umount ${DESTINATION_FILESYSTEM_MEDIA} 1>&- 2>&-
 	echo -e "o\nn\np\n1\n2048\n204800\na\n1\nt\nc\nn\np\n2\n204801\n\nw\neof\n" | fdisk -u ${DESTINATION_MEDIA} > /dev/null
 	# Refresh the device nodes
@@ -28,6 +29,7 @@ create_partitions() {
 
 format_partitions() {
 	announce "Formatting partitions"
+        [ -z ${NAND_PARAMS} ] || format_partitions_nand && return
 	ln -sf /proc/mounts /etc/mtab
 	mkfs.ext2 -L boot ${DESTINATION_KERNEL_MEDIA} 1>&- 2>&-
 	mkfs.ext4 -L rootfs ${DESTINATION_FILESYSTEM_MEDIA} 1>&- 2>&-
@@ -62,6 +64,7 @@ unmount_source() {
 
 mount_destination() {
 	announce "$FUNCNAME [ $@ ]"
+	[ -z ${NAND_PARAMS} ] || mount_destination_nand 
 	# Mount order is important
 	# Mount root partition
 	if [ ! -z "${DESTINATION_FILESYSTEM_MEDIA}" ];then
@@ -75,6 +78,7 @@ mount_destination() {
 
 unmount_destination() {
 	announce "$FUNCNAME [ $@ ]"
+        [ -z ${NAND_PARAMS} ] || umount_destination_nand && return
 	[ ! -z ${DESTINATION_KERNEL_MEDIA} ] && umount -l ${DESTINATION_KERNEL_MEDIA}
 	[ ! -z ${DESTINATION_FILESYSTEM_MEDIA} ] && umount -l ${DESTINATION_FILESYSTEM_MEDIA}
 }
@@ -105,6 +109,7 @@ mount_partitions() {
 
 copy_kernel_files() {
 	announce "Copying kernel files"
+	[ -z ${NAND_PARAMS} ] || copy_kernel_files_nand && return
 	files='*.dtb zImage*'
 	for file in ${files};do
 	stat ${SOURCE_MOUNT_PATH}/${file} &>/dev/null
@@ -147,6 +152,52 @@ nand_write() {
 	[ -z $dev ] || [ -z $src ] || [ -z $off ] && return
 	mtd='/dev/mtd'${dev}
 	${NANDWRITE} -p ${mtd} -s ${off} ${src} 1>&- 2>&-
+}
+
+format_partitions_nand() {
+	MTD_DEV_KERNEL=`echo $NAND_PARAMS | cut -d":" -f3`
+	[ -z $MTD_DEV_KERNEL ] && return
+	flash_erase ${MTD_DEV_KERNEL} 0 0
+	mtd_dev_root=`echo $NAND_PARAMS | cut -d":" -f5`
+	UBI_DEV_ROOT=`echo $NAND_PARAMS | cut -d":" -f6`
+	UBI_VOLNAME_ROOT=`echo $NAND_PARAMS | cut -d":" -f7`
+	[ -z ${mtd_dev_root} ] || [ -z ${UBI_DEV_ROOT} ] || [ -z ${UBI_VOLNAME_ROOT} ] && return
+	ubi_format ${mtd_dev_root}
+	ubi_attach ${mtd_dev_root} ${UBI_DEV_ROOT}
+	ubi_mkvol ${UBI_DEV_ROOT} ${UBI_VOLNAME_ROOT}
+	MTD_DEV_DTB=`echo $NAND_PARAMS | cut -d":" -f1`
+	[ -z $MTD_DEV_DTB ] && return
+	flash_erase ${MTD_DEV_DTB} 0 0
+}
+
+mount_destination_nand() {
+	ubi_root=" -t ubifs ubi${UBI_DEV_ROOT}:${UBI_VOLNAME_ROOT}"
+	# Overwright DESTINATION parameters for NAND update
+	DESTINATION_KERNEL_MEDIA=
+	DESTINATION_FILESYSTEM_MEDIA=${ubi_root}
+}
+
+umount_destination_nand() {
+	umount -l ${DESTINATION_FILESYSTEM_MOUNT_PATH}
+	ubi_detach ${UBI_DEV_ROOT}
+}
+
+copy_kernel_files_nand() {
+	MTD_OFFS_KERNEL=`echo $NAND_PARAMS | cut -d":" -f4`
+	[ -z $MTD_DEV_KERNEL ] || [ -z $MTD_OFFS_KERNEL ] && return
+	file='zImage*'
+	stat ${SOURCE_MOUNT_PATH}/${file} &>/dev/null
+	[ $? -ne 0 ] && return
+	nand_write ${MTD_DEV_KERNEL} ${SOURCE_MOUNT_PATH}/${file} $MTD_OFFS_KERNEL
+	MTD_OFFS_DTB=`echo $NAND_PARAMS | cut -d":" -f2`
+	[ -z $MTD_DEV_DTB ] || [ -z $MTD_OFFS_DTB ] && return
+	files=`ls ${SOURCE_MOUNT_PATH}/*.dtb`
+	for file in ${files};do
+		[ ${file##*/} == "ramdisk.dtb" ] && continue
+		stat ${file} &>/dev/null
+		[ $? -ne 0 ] && continue
+		nand_write ${MTD_DEV_DTB} ${file} $MTD_OFFS_DTB
+	done
 }
 
 ubi_format() {
