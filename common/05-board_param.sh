@@ -50,7 +50,7 @@ for dev in ${all_devs};do
 		[ -z $dev ] && break;
 		fi
 	done
-	avail_devs=${avail_devs}" "$dev
+	[ -z $dev ] || avail_devs=${avail_devs}" "$dev
 done
 rm -rf ${mpoint}
 
