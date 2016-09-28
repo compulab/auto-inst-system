@@ -13,7 +13,7 @@ create_partitions() {
 
 format_partitions() {
 	announce "Formatting partitions"
-        [ -z ${NAND_PARAMS} ] || format_partitions_nand && return
+        [ -z ${NAND_PARAMS} ] || (format_partitions_nand; return)
 	ln -sf /proc/mounts /etc/mtab
 	mkfs.ext2 -L boot ${DESTINATION_KERNEL_MEDIA} 1>&- 2>&-
 	mkfs.ext4 -L rootfs ${DESTINATION_FILESYSTEM_MEDIA} 1>&- 2>&-

@@ -2,7 +2,7 @@ NANDWRITE=$(which nandwrite &>/dev/null && which nandwrite || echo -n 'echo nand
 
 copy_kernel_files() {
 	announce "Copying kernel files"
-	[ -z ${NAND_PARAMS} ] || copy_kernel_files_nand && return
+	[ -z ${NAND_PARAMS} ] || (copy_kernel_files_nand; return)
 	files='*.dtb zImage*'
 	for file in ${files};do
 	stat ${SOURCE_MOUNT_PATH}/${file} &>/dev/null

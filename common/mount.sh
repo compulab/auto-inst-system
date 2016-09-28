@@ -44,7 +44,7 @@ mount_destination() {
 
 unmount_destination() {
 	announce "$FUNCNAME [ $@ ]"
-        [ -z ${NAND_PARAMS} ] || umount_destination_nand && return
+        [ -z ${NAND_PARAMS} ] || (umount_destination_nand; return)
 	[ ! -z ${DESTINATION_KERNEL_MEDIA} ] && umount -l ${DESTINATION_KERNEL_MEDIA}
 	[ ! -z ${DESTINATION_FILESYSTEM_MEDIA} ] && umount -l ${DESTINATION_FILESYSTEM_MEDIA}
 }
