@@ -19,7 +19,7 @@ mount_source() {
 	announce "$FUNCNAME [ $@ ]"
 	# Mount source partition
 	if [ ! -z "${SOURCE_MEDIA}" ];then
-	mkdir -p ${SOURCE_MOUNT_PATH} && mount ${SOURCE_MEDIA} ${SOURCE_MOUNT_PATH}
+		mkdir -p ${SOURCE_MOUNT_PATH} && mount ${SOURCE_MEDIA} ${SOURCE_MOUNT_PATH}
 	fi
 }
 
@@ -34,11 +34,11 @@ mount_destination() {
 	# Mount order is important
 	# Mount root partition
 	if [ ! -z "${DESTINATION_FILESYSTEM_MEDIA}" ];then
-	mkdir -p ${DESTINATION_FILESYSTEM_MOUNT_PATH} && mount ${DESTINATION_FILESYSTEM_MEDIA} ${DESTINATION_FILESYSTEM_MOUNT_PATH}
+		mkdir -p ${DESTINATION_FILESYSTEM_MOUNT_PATH} && mount ${DESTINATION_FILESYSTEM_MEDIA} ${DESTINATION_FILESYSTEM_MOUNT_PATH}
 	fi
 	# Mount boot partition onto the rootfs/boot
 	if [ ! -z ${DESTINATION_KERNEL_MEDIA} ];then
-	mkdir -p ${DESTINATION_KERNEL_MOUNT_PATH} && mount ${DESTINATION_KERNEL_MEDIA} ${DESTINATION_KERNEL_MOUNT_PATH}
+		mkdir -p ${DESTINATION_KERNEL_MOUNT_PATH} && mount ${DESTINATION_KERNEL_MEDIA} ${DESTINATION_KERNEL_MOUNT_PATH}
 	fi
 }
 
