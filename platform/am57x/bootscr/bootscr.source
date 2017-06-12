@@ -1,24 +1,13 @@
 #System installation for CL-SOM-AM57x
 
 # Next run parameters
-setenv displaytype hdmi
-setenv delete_hdmi 'fdt rm /aliases display0; fdt rm /ocp/dss/encoder@58060000; fdt rm /connector@0'
-setenv delete_lcd 'fdt rm /aliases display1; fdt rm /ocp/dss/ports/port@0/endpoint@0; fdt rm /display@0'
-setenv delete_dvi 'fdt rm /aliases display2; fdt rm /connector@1; fdt rm /tfp410; fdt rm /ocp/dss/ports/port@0/endpoint@1'
-setenv delete_lvds 'fdt rm /aliases display3; fdt rm /ocp/dss/ports/port@2; fdt rm /display@1'
-setenv test_lcd 'if test $displaytype = lcd; then run delete_dvi; run delete_lvds; run delete_hdmi; fi'
-setenv test_dvi 'if test $displaytype = dvi; then run delete_lcd; run delete_lvds; fi'
-setenv test_lvds 'if test $displaytype = lvds; then run delete_lcd; run delete_dvi; run delete_hdmi; fi'
-setenv test_hdmi 'if test $displaytype = hdmi; then run delete_lcd; run delete_dvi; run delete_lvds; fi'
-setenv update_display 'run test_lcd; run test_dvi; run test_lvds; run test_hdmi'
-setenv load_fdt 'fdt addr 88000000; setenv fdtaddr 88000000'
-setenv update_dtb 'run load_fdt; run update_display'
 setenv unreset_pcie 'i2c dev 4; pca953x output 1 1'
 run emmcargs
 setenv load_emmc 'setenv mmcdev 1 && mmc dev ${mmcdev} && mmc rescan && run emmcloadkernel && run emmcloadfdt'
-setenv bootcmd_emmc 'run unreset_pcie; setenv mmcdev 0; run mmcbootscript; run load_emmc; run update_dtb; run bootkernel'
-setenv bootcmd 'setenv bootcmd $bootcmd_emmc; saveenv; run load_emmc; run update_dtb; run bootkernel'
+setenv bootcmd_emmc 'run unreset_pcie; run mmcbootscript; run emmcboot'
+setenv bootcmd 'setenv bootcmd $bootcmd_emmc; saveenv; run unreset_pcie; run emmcboot'
 saveenv
 
 # Parameters
 setenv tty "ttyO2,115200"
+
