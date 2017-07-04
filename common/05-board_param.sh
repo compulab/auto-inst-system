@@ -1,16 +1,25 @@
 #!/bin/bash
 
+SCR_PATH=/root/install
 mpoint=/tmp/_mount
 tarfile=rootfs.tar.bz2
 mfile=install.ext2
-boart_param_file=/etc/init.d/board_params.sh
+board_param_file=${SCR_PATH}/board_params.sh
 
 destination=""
-all_devs=$(ls /sys/class/block/*/capability | awk -F"/" '($5~/sd|mmc/)&&($0=$5)')
 avail_devs=""
 cnt=0
 source=""
 min_size_inb=2097152
+
+# Extract NAND parameters from cmdline
+nand_params=`cat /proc/cmdline | tr " " "\n" | grep nand | cut -d"=" -f2`
+if [ ! -z $nand_params ];then
+	avail_devs="mtd"
+	((cnt++))
+fi
+
+all_devs=$(ls /sys/class/block/*/capability | awk -F"/" '($5~/sd|mmc/)&&($0=$5)')
 mkdir -p ${mpoint}
 for dev in ${all_devs};do
 	# Device size check
@@ -41,7 +50,7 @@ for dev in ${all_devs};do
 		[ -z $dev ] && break;
 		fi
 	done
-	avail_devs=${avail_devs}" "$dev
+	[ -z $dev ] || avail_devs=${avail_devs}" "$dev
 done
 rm -rf ${mpoint}
 
@@ -68,10 +77,15 @@ else
 fi
 part_pref=$([[ ${destination} =~ "mmc" ]] &&  echo -n "p")
 
-cat << eof > ${boart_param_file}
+if [ $destination != "/dev/mtd" ];then
+	nand_params=
+fi
+
+cat << eof > ${board_param_file}
 SOURCE_MEDIA=${source}
 DESTINATION_MEDIA=${destination}
 DESTINATION_KERNEL_MEDIA=${destination}${part_pref}1
 DESTINATION_FILESYSTEM_MEDIA=${destination}${part_pref}2
 FILESYSTEM_ARCHIVE_NAME=${tarfile}
+NAND_PARAMS=${nand_params}
 eof

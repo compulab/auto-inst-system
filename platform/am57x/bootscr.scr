@@ -1,9 +1,0 @@
-#System installation for CL-SOM-AM57x
-
-# Next run parameters
-setenv bootcmd_emmc 'setenv mmcdev 0; run mmcbootscript; setenv mmcdev 1; run emmcboot; run nandboot;'
-setenv bootcmd 'setenv bootcmd $bootcmd_emmc; saveenv; setenv mmcdev 1; run emmcboot;'
-saveenv
-
-# Parameters
-setenv tty "ttyO2,115200"

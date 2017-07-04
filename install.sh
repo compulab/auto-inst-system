@@ -1,7 +1,7 @@
 #!/bin/bash
 
 INSTALL_EXT2=$(dirname $BASH_SOURCE)/install.ext2
-MPOINT=/etc/init.d
+MPOINT=/root/install
 
 [ -f ${INSTALL_EXT2} ] || exit 1
 
