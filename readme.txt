@@ -5,9 +5,7 @@ RAM disk file system
 ---------------------
 ramdisk is ready to run on any arm platform.
 requires no changes at all.
-ramdisk location is:
-ssh:team@192.168.11.170:/home/val/Devel/tmp/release/installer/ramdisk.img
-http://192.168.11.170/release/installer/ramdisk.img
+Latest working ramdisk is found in the repository as ramdisk.img
 
 Installation SD card files
 --------------------------
