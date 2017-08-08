@@ -1,7 +1,7 @@
 ::sysinit:/etc/init.d/rcS
-::sysinit:/root/install/rcC
-::sysinit:/root/install/rcI
-::sysinit:/root/install/install.sh
+::sysinit:/etc/init.d/rcC
+::sysinit:/etc/init.d/rcI
+::sysinit:/etc/init.d/install.sh
 
 # Stuff to do when restarting the init process
 ::restart:/sbin/init

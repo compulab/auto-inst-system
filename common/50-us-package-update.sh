@@ -6,7 +6,7 @@ PRINTK_NONE="1 1 1 1"
 PRINTK_CONFIG=$(cat /proc/sys/kernel/printk)
 PACKAGE_IMG=/media/source/rootfs-update
 IMG_MOUNT_PATH=/media/rootfs/usr/local/mydebs/
-SCR_PATH=/root/install
+SCR_PATH=$(dirname $BASH_SOURCE)
 DESTINATION_FILESYSTEM_MOUNT_PATH=/media/rootfs
 DESTINATION_KERNEL_MOUNT_PATH=${DESTINATION_FILESYSTEM_MOUNT_PATH}/boot
 

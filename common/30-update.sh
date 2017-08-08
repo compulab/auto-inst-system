@@ -3,7 +3,7 @@
 ##### Constants #####
 PRINTK_NONE="1 1 1 1"
 printk_config=$(cat /proc/sys/kernel/printk)
-SCR_PATH=/root/install
+SCR_PATH=$(dirname $BASH_SOURCE)
 
 SOURCE_MOUNT_PATH=/media/source
 DESTINATION_FILESYSTEM_MOUNT_PATH=/media/rootfs

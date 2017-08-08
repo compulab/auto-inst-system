@@ -22,7 +22,7 @@ count_down()
 ##### Main #####
 # Constants
 AUTO_INSTALL="auto_install"
-MPOINT=/root/install
+MPOINT=$(dirname $BASH_SOURCE)
 
 # Get kernel command line
 k_command=$(cat /proc/cmdline)
@@ -38,7 +38,7 @@ then
         exit 0;
 fi
 
-# Start all init scripts in /root/install
+# Start all init scripts in /mnt/install
 # executing them in numerical order.
 for i in ${MPOINT}/[0-9][0-9]*.sh ;do
 	# Ignore dangling symlinks (if any).

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SCR_PATH=/root/install
+SCR_PATH=$(dirname $BASH_SOURCE)
 mpoint=/tmp/_mount
 tarfile=rootfs.tar.bz2
 mfile=install.ext2

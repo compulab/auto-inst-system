@@ -1,0 +1,17 @@
+#!/bin/bash
+
+MPOINT=/mnt/install
+MFILE=ramdisk.img
+
+all_devs=$(ls /sys/class/block/*/capability | awk -F"/" '($5~/sd|mmc/)&&($0=$5)')
+
+for dev in ${all_devs};do
+	for _dev in $(ls /dev/${dev}*);do
+		mount $_dev ${MPOINT} 2>/dev/null
+		if [ $? -eq 0 ];then
+			stat ${MPOINT}/${MFILE} &>/dev/null
+			[ $? -eq 0 ] && exit
+			umount -l ${MPOINT}
+		fi
+	done
+done

@@ -26,7 +26,6 @@ rootfs.tar.bz2 - file system image
 
 install.ext2   - etx2 image that contains all:
 	common and platform specific installaton scripts.
-install.sh     - ext2 image mounter
 
 rootfs-update - file system update image
 <module kernel> - module kernel image
