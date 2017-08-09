@@ -30,7 +30,9 @@ unmount_source() {
 
 mount_destination() {
 	announce "$FUNCNAME [ $@ ]"
-	[ -z ${NAND_PARAMS} ] || mount_destination_nand 
+	if [ ! -z ${NAND_PARAMS} ];then
+		mount_destination_nand
+	fi
 	# Mount order is important
 	# Mount root partition
 	if [ ! -z "${DESTINATION_FILESYSTEM_MEDIA}" ];then
@@ -44,7 +46,10 @@ mount_destination() {
 
 unmount_destination() {
 	announce "$FUNCNAME [ $@ ]"
-        [ -z ${NAND_PARAMS} ] || (umount_destination_nand; return)
+        if [ ! -z ${NAND_PARAMS} ];then
+		umount_destination_nand
+		return
+	fi
 	[ ! -z ${DESTINATION_KERNEL_MEDIA} ] && umount -l ${DESTINATION_KERNEL_MEDIA}
 	[ ! -z ${DESTINATION_FILESYSTEM_MEDIA} ] && umount -l ${DESTINATION_FILESYSTEM_MEDIA}
 }

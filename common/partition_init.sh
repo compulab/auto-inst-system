@@ -4,7 +4,9 @@ UBIMKVOL=$(which ubimkvol &>/dev/null && which ubimkvol || echo -n 'echo ubimkvo
 
 create_partitions() {
 	announce "Updating partitions"
-	[ -z ${NAND_PARAMS} ] || return
+	if [ ! -z ${NAND_PARAMS} ];then
+		return
+	fi
 	mdev -s && umount ${DESTINATION_KERNEL_MEDIA} 1>&- 2>&- && umount ${DESTINATION_FILESYSTEM_MEDIA} 1>&- 2>&-
 	echo -e "o\nn\np\n1\n2048\n204800\na\n1\nt\nc\nn\np\n2\n204801\n\nw\neof\n" | fdisk -u ${DESTINATION_MEDIA} > /dev/null
 	# Refresh the device nodes
@@ -13,7 +15,10 @@ create_partitions() {
 
 format_partitions() {
 	announce "Formatting partitions"
-        [ -z ${NAND_PARAMS} ] || (format_partitions_nand; return)
+        if [ ! -z ${NAND_PARAMS} ];then
+		format_partitions_nand
+		return
+	fi
 	ln -sf /proc/mounts /etc/mtab
 	mkfs.ext2 -L boot ${DESTINATION_KERNEL_MEDIA} 1>&- 2>&-
 	mkfs.ext4 -L rootfs ${DESTINATION_FILESYSTEM_MEDIA} 1>&- 2>&-
