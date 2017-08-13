@@ -44,6 +44,7 @@ for i in ${MPOINT}/[0-9][0-9]*.sh ;do
 	# Ignore dangling symlinks (if any).
 	[ ! -f "$i" ] && continue
 	. $i
+	[ $? -ne 0 ] && exit 1
 done
 
 echo "Please remove installation SD card ..."

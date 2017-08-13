@@ -13,16 +13,21 @@ ROOTFS_FILE_UPDATE=*.update.tar.bz2
 . "${SCR_PATH}/functions.sh"
 
 ## Preinstallation Sanicty Check ##
-[ $(basename $BASH_SOURCE) == $(basename $0) ] && EXIT="exit" || EXIT="return"
-[ -z ${DESTINATION_MEDIA} ] && ${EXIT} 1
-[ -z ${SOURCE_MEDIA} ] && ${EXIT} 2
+[ -z ${DESTINATION_MEDIA} ] && return 0
+[ -z ${SOURCE_MEDIA} ] && return 0
 
-stat ${SOURCE_MOUNT_PATH}/${ROOTFS_FILE_UPDATE} &>/dev/null || ${EXIT} 3
+stat ${SOURCE_MOUNT_PATH}/${ROOTFS_FILE_UPDATE} &>/dev/null || return 0
+
+install_main () {
+	mount_destination  || return $?
+	extract_userspace "${SOURCE_MOUNT_PATH}/${ROOTFS_FILE_UPDATE}" || return $?
+	unmount_destination || return $?
+}
 
 ##### Main #####
 title "Updating OS"
 echo $PRINTK_NONE > /proc/sys/kernel/printk
-mount_destination
-extract_userspace "${SOURCE_MOUNT_PATH}/${ROOTFS_FILE_UPDATE}"
-unmount_destination
+install_main
+ret=$?
 echo $printk_config > /proc/sys/kernel/printk
+return ${ret}

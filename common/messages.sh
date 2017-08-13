@@ -1,5 +1,6 @@
 NORMAL="\033[0m"
 GREEN="\033[32;1m"
+RED="\033[31;1m"
 
 title() {
 	echo -e "${GREEN}===${1}===${NORMAL}"
@@ -8,3 +9,8 @@ title() {
 announce() {
 	echo -e "${GREEN}* ${NORMAL}${@}"
 }
+
+function err_msg() {
+	echo -e "${RED}${@}${NORMAL}"
+}
+

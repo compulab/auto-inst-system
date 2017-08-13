@@ -19,13 +19,19 @@ DESTINATION_KERNEL_MOUNT_PATH=${DESTINATION_FILESYSTEM_MOUNT_PATH}/boot
 
 stat ${SOURCE_MOUNT_PATH}/${FILESYSTEM_ARCHIVE_NAME} &>/dev/null || ${EXIT} 4
 
+install_main () {
+	create_partitions   || return $?
+	format_partitions   || return $?
+	mount_destination   || return $?
+	copy_kernel_files   || return $?
+	extract_userspace   || return $?
+	unmount_destination || return $?
+}
+
 ##### Main #####
 title "Installing OS"
 echo $PRINTK_NONE > /proc/sys/kernel/printk
-create_partitions
-format_partitions
-mount_destination
-copy_kernel_files
-extract_userspace
-unmount_destination
+install_main
+ret=$?
 echo $printk_config > /proc/sys/kernel/printk
+return ${ret}

@@ -14,8 +14,7 @@ DESTINATION_KERNEL_MOUNT_PATH=${DESTINATION_FILESYSTEM_MOUNT_PATH}/boot
 . "${SCR_PATH}/functions.sh"
 
 ## Preinstallation Sanicty Check ##
-[ $(basename $BASH_SOURCE) == $(basename $0) ] && EXIT="exit" || EXIT="return"
-[ -f ${PACKAGE_IMG} ] || ${EXIT} 1
+[ -f ${PACKAGE_IMG} ] || return 0
 
 ##### Main #####
 # Save printk configuration
@@ -23,7 +22,7 @@ title "Updating user space"
 announce "Mounting package update image"
 echo $PRINTK_NONE > /proc/sys/kernel/printk
 mount_destination
-[ -d ${IMG_MOUNT_PATH} ] || ${EXIT} 2
+[ -d ${IMG_MOUNT_PATH} ] || return 0
 mount -o loop $PACKAGE_IMG $IMG_MOUNT_PATH
 announce "Installing packages"
 mount -t proc none /media/rootfs/proc

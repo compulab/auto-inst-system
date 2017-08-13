@@ -15,4 +15,4 @@ SOURCE_MOUNT_PATH=/media/source
 [ -z ${SOURCE_MEDIA} ] && ${EXIT} 3
 
 title " Mount Source ${SOURCE_MEDIA} "
-mount_source
+mount_source || return $?

@@ -4,22 +4,52 @@ UBIDETACH=$(which ubidetach &>/dev/null && which ubidetach || echo -n 'echo ubid
 mount_dev() {
 	announce "$FUNCNAME [ $@ ]"
 	dev=$1; mpoint=$2
-	[ -z "$dev" ] || [ -z $mpoint ] && return
-	mkdir -p ${mpoint} && mount ${dev} ${mpoint}
+	if [ -z "$dev" ] || [ -z $mpoint ];then
+		err_msg ${FUNCNAME[0]}: empty parameters: dev=${dev} mpoint={mpoint}
+		return 1
+	fi
+	mkdir -p ${mpoint}
+	if [ $? -ne 0 ];then
+		err_msg ${FUNCNAME[0]}: Failed to create directory: ${ret}
+		err_msg ${FUNCNAME[0]}: failed cmd: mkdir -p ${mpoint}
+		return ${ret}
+	fi
+	mount ${dev} ${mpoint}
+	ret=0; if [ ${ret} -ne 0 ];then
+		err_msg ${FUNCNAME[0]}: mount failure: ${ret}
+		err_msg ${FUNCNAME[0]}: failed cmd: mount ${dev} ${mpoint}
+		return ${ret}
+	fi
 }
 
 umount_dev() {
 	announce "$FUNCNAME [ $@ ]"
 	dev_mpoint=$1
-	[ -z "$dev_mpoint" ] && return
+	if [ -z "$dev_mpoint" ];then
+		err_msg ${FUNCNAME[0]}: dev_mpoint parameter is empty
+		return 1
+	fi
 	umount -l ${dev_mpoint} &>/dev/null
 }
 
 mount_source() {
 	announce "$FUNCNAME [ $@ ]"
 	# Mount source partition
-	if [ ! -z "${SOURCE_MEDIA}" ];then
-		mkdir -p ${SOURCE_MOUNT_PATH} && mount ${SOURCE_MEDIA} ${SOURCE_MOUNT_PATH}
+	if [ -z "${SOURCE_MEDIA}" ];then
+		err_msg ${FUNCNAME[0]}: variable SOURCE_MEDIA is empty
+		return 1
+	fi
+	mkdir -p ${SOURCE_MOUNT_PATH}
+	ret=$?; if [ ${ret} -ne 0 ];then
+		err_msg ${FUNCNAME[0]}: failed to create directory: ${ret}
+		err_msg ${FUNCNAME[0]}: failed cmd: mkdir -p ${SOURCE_MOUNT_PATH}
+		return 1
+	fi
+	mount ${SOURCE_MEDIA} ${SOURCE_MOUNT_PATH}
+	ret=$?; if [ ${ret} -ne 0 ];then
+		err_msg ${FUNCNAME[0]}: mount failure: ${ret}
+		err_msg ${FUNCNAME[0]}: failed cmd: mount ${SOURCE_MEDIA} ${SOURCE_MOUNT_PATH}
+		return ${ret}
 	fi
 }
 
@@ -35,30 +65,77 @@ mount_destination() {
 	fi
 	# Mount order is important
 	# Mount root partition
-	if [ ! -z "${DESTINATION_FILESYSTEM_MEDIA}" ];then
-		mkdir -p ${DESTINATION_FILESYSTEM_MOUNT_PATH} && mount ${DESTINATION_FILESYSTEM_MEDIA} ${DESTINATION_FILESYSTEM_MOUNT_PATH}
+	if [ -z "${DESTINATION_FILESYSTEM_MEDIA}" ];then
+		err_msg ${FUNCNAME[0]}: variable DESTINATION_FILESYSTEM_MEDIA is empty
+		return 1
+	fi
+	mkdir -p ${DESTINATION_FILESYSTEM_MOUNT_PATH}
+	ret=$?; if [ ${ret} -ne 0 ];then
+		err_msg ${FUNCNAME[0]}: failed to create directory: ${ret}
+		err_msg ${FUNCNAME[0]}: failed cmd: mkdir -p ${DESTINATION_FILESYSTEM_MOUNT_PATH}
+		return ${ret}
+        fi
+	mount ${DESTINATION_FILESYSTEM_MEDIA} ${DESTINATION_FILESYSTEM_MOUNT_PATH}
+	ret=$?; if [ ${ret} -ne 0 ];then
+		err_msg ${FUNCNAME[0]}: mount failure: ${ret}
+		err_msg ${FUNCNAME[0]}: failed cmd: mount \
+			${DESTINATION_FILESYSTEM_MEDIA} ${DESTINATION_FILESYSTEM_MOUNT_PATH}
+		return ${ret}
 	fi
 	# Mount boot partition onto the rootfs/boot
-	if [ ! -z ${DESTINATION_KERNEL_MEDIA} ];then
-		mkdir -p ${DESTINATION_KERNEL_MOUNT_PATH} && mount ${DESTINATION_KERNEL_MEDIA} ${DESTINATION_KERNEL_MOUNT_PATH}
+	if [ -z ${DESTINATION_KERNEL_MEDIA} ];then
+		return 0
+	fi
+	mkdir -p ${DESTINATION_KERNEL_MOUNT_PATH}
+	ret=$?; if [ ${ret} -ne 0 ];then
+		err_msg ${FUNCNAME[0]}: failed to create directory: ${ret}
+		err_msg ${FUNCNAME[0]}: failed cmd: mkdir -p ${DESTINATION_KERNEL_MOUNT_PATH}
+		return ${ret}
+	fi
+	mount ${DESTINATION_KERNEL_MEDIA} ${DESTINATION_KERNEL_MOUNT_PATH}
+	ret=$?; if [ ${ret} -ne 0 ];then
+		err_msg ${FUNCNAME[0]}: mount failure: ${ret}
+		err_msg ${FUNCNAME[0]}: failed cmd: mount \
+			${DESTINATION_KERNEL_MEDIA} ${DESTINATION_KERNEL_MOUNT_PATH}
+		return ${ret}
 	fi
 }
 
 unmount_destination() {
 	announce "$FUNCNAME [ $@ ]"
-        if [ ! -z ${NAND_PARAMS} ];then
+	if [ ! -z ${NAND_PARAMS} ];then
 		umount_destination_nand
-		return
+		return $?
 	fi
-	[ ! -z ${DESTINATION_KERNEL_MEDIA} ] && umount -l ${DESTINATION_KERNEL_MEDIA}
-	[ ! -z ${DESTINATION_FILESYSTEM_MEDIA} ] && umount -l ${DESTINATION_FILESYSTEM_MEDIA}
+	if [ -z ${DESTINATION_KERNEL_MEDIA} ]; then
+		err_msg ${FUNCNAME[0]}: variable DESTINATION_KERNEL_MEDIA is empty
+		return 1
+	fi
+	umount -l ${DESTINATION_KERNEL_MEDIA}
+	if [ -z ${DESTINATION_FILESYSTEM_MEDIA} ];then
+		err_msg ${FUNCNAME[0]}: variable DESTINATION_FILESYSTEM_MEDIA is empty
+		return 1
+	fi
+	umount -l ${DESTINATION_FILESYSTEM_MEDIA}
 }
 
 unmount_partitions() {
 	announce "Unmounting partitions"
-	[ ! -z ${DESTINATION_KERNEL_MEDIA} ] && umount -l ${DESTINATION_KERNEL_MEDIA}
-	[ ! -z ${DESTINATION_FILESYSTEM_MEDIA} ] && umount -l ${DESTINATION_FILESYSTEM_MEDIA}
-	[ ! -z ${SOURCE_MEDIA} ] && umount -l ${SOURCE_MEDIA}
+	if [ -z ${DESTINATION_KERNEL_MEDIA} ];then
+		err_msg ${FUNCNAME[0]}: variable DESTINATION_KERNEL_MEDIA is empty
+		return 1
+	fi
+	umount -l ${DESTINATION_KERNEL_MEDIA}
+	if [ -z ${DESTINATION_FILESYSTEM_MEDIA} ];then
+		err_msg ${FUNCNAME[0]}: variable DESTINATION_FILESYSTEM_MEDIA is empty
+		return 1
+	fi
+	umount -l ${DESTINATION_FILESYSTEM_MEDIA}
+	if [ -z ${SOURCE_MEDIA} ];then
+		err_msg ${FUNCNAME[0]}: variable SOURCE_MEDIA is empty
+		return 1
+	fi
+	umount -l ${SOURCE_MEDIA}
 }
 
 mount_destination_nand() {
@@ -78,6 +155,11 @@ ubi_attach() {
 	mtd=$1; ubi=$2
 	[ -z $mtd ] || [ -z $ubi ] && return
 	${UBIATTACH} -m ${mtd} -d ${ubi} 1>&- 2>&-
+	ret=$?; if [ ${ret} -ne 0 ];then
+		err_msg ${FUNCNAME[0]}: ubiattach failure: ${ret}
+		err_msg ${FUNCNAME[0]}: failed cmd: ${UBIATTACH} -m ${mtd} -d ${ubi}
+		return ${ret}
+	fi
 }
 
 ubi_detach() {
@@ -85,4 +167,9 @@ ubi_detach() {
 	ubi=$1
 	[ -z $ubi ] && return
 	${UBIDETACH} -d ${ubi}
+	ret=$?; if [ ${ret} -ne 0 ];then
+		err_msg ${FUNCNAME[0]}: ubidetach failure: ${ret}
+		err_msg ${FUNCNAME[0]}: failed cmd: ${UBIDETACH} -d ${ubi}
+		return ${ret}
+	fi
 }
