@@ -36,8 +36,16 @@ count_down()
 
 ##### Main #####
 # Constants
+AUTO_INSTALL_VERSION="0.1.0"
+AUTO_INSTALL_VERSION_DATE="Aug 15 2017"
+AUTO_INSTALL_BANNER="CompuLab Automatic Installation System ${AUTO_INSTALL_VERSION} (${AUTO_INSTALL_VERSION_DATE})"
 AUTO_INSTALL="auto_install"
 MPOINT=$(dirname $BASH_SOURCE)
+
+. "${MPOINT}/messages.sh"
+
+# Display version
+title "${AUTO_INSTALL_BANNER}"
 
 # Get kernel command line
 k_command=$(cat /proc/cmdline)
