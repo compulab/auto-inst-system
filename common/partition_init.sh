@@ -2,6 +2,8 @@ FLASHERASE=$(which flash_erase &>/dev/null && which flash_erase || echo -n 'echo
 UBIFORAMT=$(which ubiformat &>/dev/null && which ubiformat || echo -n 'echo ubiformat')
 UBIMKVOL=$(which ubimkvol &>/dev/null && which ubimkvol || echo -n 'echo ubimkvol')
 DD=$(which dd &>/dev/null && which dd || echo -n 'echo dd')
+SFDISK=$(which sfdisk &>/dev/null && which sfdisk || echo -n 'echo sfdisk')
+SFDISK_CONF_FILE_BLOCK=$(dirname $BASH_SOURCE)/sfdisk-block.conf
 
 create_partitions() {
 	announce "Updating partitions"
@@ -12,9 +14,18 @@ create_partitions() {
 	umount ${DESTINATION_KERNEL_MEDIA} 1>&- 2>&-
 	umount ${DESTINATION_FILESYSTEM_MEDIA} 1>&- 2>&-
 	${DD} if=/dev/zero of=${DESTINATION_MEDIA} bs=1M count=1 1>&- 2>&-
-	echo -e "o\nn\np\n1\n2048\n204800\na\n1\nt\nc\nn\np\n2\n204801\n\nw\neof\n" | fdisk -u ${DESTINATION_MEDIA} > /dev/null
+	ret=$?;
+	if [ ${ret} -ne 0 ];then
+		err_msg ${FUNCNAME[0]}: failed to delete MBR: ${ret}
+		err_msg ${FUNCNAME[0]}: failed cmd: \
+			${DD} if=/dev/zero of=${DESTINATION_MEDIA} bs=1M count=1
+		return ${ret}
+	fi
+	${SFDISK} -f ${DESTINATION_MEDIA} -uM < ${SFDISK_CONF_FILE_BLOCK} &> /dev/null
 	ret=$?; if [ ${ret} -ne 0 ];then
 		err_msg ${FUNCNAME[0]}: failed to create partitions: ${ret}
+		err_msg ${FUNCNAME[0]}: failed cmd: \
+			${SFDISK} -f ${DESTINATION_MEDIA} -uM < ${SFDISK_CONF_FILE_BLOCK}
 		return ${ret}
 	fi
 	# Refresh the device nodes
