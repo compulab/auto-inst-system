@@ -12,6 +12,8 @@ cnt=0
 source=""
 min_size_inb=2097152
 
+. "${SCR_PATH}/functions.sh"
+
 # Extract NAND parameters from cmdline
 nand_params=`cat /proc/cmdline | tr " " "\n" | grep nand | cut -d"=" -f2`
 if [ ! -z $nand_params ];then
@@ -56,7 +58,10 @@ rm -rf ${mpoint}
 
 avail_devs="${avail_devs#"${avail_devs%%[![:space:]]*}"}"
 
-if [ $cnt -eq 1 ];then
+if [ $cnt -eq 0 ];then
+	err_msg $(basename $BASH_SOURCE): no destination media found
+	return 1
+elif [ $cnt -eq 1 ];then
 	destination="/dev/"${avail_devs}
 else
 	select_string=$(echo ${avail_devs}; echo "<<")
