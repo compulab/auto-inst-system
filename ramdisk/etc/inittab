@@ -1,7 +1,7 @@
 ::sysinit:/etc/init.d/rcS
 ::sysinit:/etc/init.d/rcC
 ::sysinit:/etc/init.d/rcI
-::sysinit:/etc/init.d/install.sh
+::sysinit:/etc/init.d/install.sh 2>&1 | tee /dev/tty1
 
 # Stuff to do when restarting the init process
 ::restart:/sbin/init

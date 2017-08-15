@@ -27,7 +27,8 @@ extract_userspace() {
 	for _file in ${patt};do
 		announce "Extracting user space $(basename $_file)"
 		if [ $_pv -eq 0 ];then
-			pv ${_file} | tar --numeric-owner -xpjf - -C ${DESTINATION_FILESYSTEM_MOUNT_PATH} > /dev/null && sync
+			pv -f ${_file} | tar --numeric-owner -xpjf - -C \
+				${DESTINATION_FILESYSTEM_MOUNT_PATH} && sync
 		else
 			tar --numeric-owner -xpjf ${_file} -C ${DESTINATION_FILESYSTEM_MOUNT_PATH} > /dev/null && sync
 		fi
