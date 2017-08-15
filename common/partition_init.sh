@@ -1,6 +1,7 @@
 FLASHERASE=$(which flash_erase &>/dev/null && which flash_erase || echo -n 'echo flash_erase')
 UBIFORAMT=$(which ubiformat &>/dev/null && which ubiformat || echo -n 'echo ubiformat')
 UBIMKVOL=$(which ubimkvol &>/dev/null && which ubimkvol || echo -n 'echo ubimkvol')
+DD=$(which dd &>/dev/null && which dd || echo -n 'echo dd')
 
 create_partitions() {
 	announce "Updating partitions"
@@ -10,6 +11,7 @@ create_partitions() {
 	mdev -s 1>&- 2>&-
 	umount ${DESTINATION_KERNEL_MEDIA} 1>&- 2>&-
 	umount ${DESTINATION_FILESYSTEM_MEDIA} 1>&- 2>&-
+	${DD} if=/dev/zero of=${DESTINATION_MEDIA} bs=1M count=1 1>&- 2>&-
 	echo -e "o\nn\np\n1\n2048\n204800\na\n1\nt\nc\nn\np\n2\n204801\n\nw\neof\n" | fdisk -u ${DESTINATION_MEDIA} > /dev/null
 	ret=$?; if [ ${ret} -ne 0 ];then
 		err_msg ${FUNCNAME[0]}: failed to create partitions: ${ret}
