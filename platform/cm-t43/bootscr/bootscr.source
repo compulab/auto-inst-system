@@ -1,8 +1,8 @@
 #System installation for CM-T43
 
 # Next run parameters
-setenv bootcmd_new "setenv mmcdev 0; run mmcboot; setenv mmcdev 1; run mmcboot; run nandboot;"
-setenv bootcmd 'setenv bootcmd $bootcmd_new; setenv bootcmd_new ""; saveenv; setenv mmcroot "/dev/mmcblk1p2 rw"; setenv mmcdev 1; run mmcboot;'
+setenv bootcmd_orig "$bootcmd"
+setenv bootcmd 'setenv bootcmd $bootcmd_orig; setenv bootcmd_orig ""; saveenv; if mmc dev 0; then setenv emmcroot "/dev/mmcblk1p2 rw"; else setenv emmcroot "/dev/mmcblk0p2 rw"; fi; setenv mmcdev 1; run emmcboot;'
 saveenv
 
 # Parameters
