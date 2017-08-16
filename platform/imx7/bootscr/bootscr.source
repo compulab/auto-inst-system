@@ -2,7 +2,7 @@
 
 # Next run parameters
 setenv bootcmd_next 'echo SD boot attempt ...; run sdbootscript; run sdboot; echo eMMC boot attempt ...; run emmcbootscript; run emmcboot; echo NAND boot attempt ...; run nandboot'
-setenv bootcmd 'setenv bootcmd $bootcmd_next; saveenv; run emmcboot'
+setenv bootcmd 'setenv bootcmd $bootcmd_next; saveenv; run emmcboot; run nandboot;'
 saveenv
 
 # Parameters
@@ -11,3 +11,5 @@ setenv mmcdev 0
 setenv rdaddr 0x82000000
 setenv loadaddr 0x80800000
 setenv fdtaddr 0x83000000
+
+setenv board_param nand=4:0:3:0:5:0:rootfs
