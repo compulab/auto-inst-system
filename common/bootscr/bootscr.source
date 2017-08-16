@@ -3,9 +3,12 @@ setenv ramimg ramdisk.img
 test -z "$fdtfile" && setenv fdtfile ramdisk.dtb
 setenv kernel kernel.img
 
+test -z "$storagetype" && setenv storagetype mmc
+test -z "$storagedev" && setenv storagedev ${mmcdev}
+
 # Script start
-load mmc ${mmcdev} ${fdtaddr} ${fdtfile}
-load mmc ${mmcdev} ${loadaddr} ${kernel}
-load mmc ${mmcdev} ${rdaddr} ${ramimg}
+load ${storagetype} ${storagedev} ${fdtaddr} ${fdtfile}
+load ${storagetype} ${storagedev} ${loadaddr} ${kernel}
+load ${storagetype} ${storagedev} ${rdaddr} ${ramimg}
 echo "Starting modulle installation ..."
 bootz ${loadaddr} ${rdaddr} ${fdtaddr}
