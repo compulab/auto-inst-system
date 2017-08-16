@@ -32,8 +32,11 @@ min_size_inb=2097152
 # Extract NAND parameters from cmdline
 nand_params=`cat /proc/cmdline | tr " " "\n" | grep nand | cut -d"=" -f2`
 if [ ! -z $nand_params ];then
-	avail_devs="mtd"
-	((cnt++))
+	mtd_parts_no=`cat /proc/mtd | grep -cE "(((kernel|linux)|dtb)|rootfs)"`
+	if [ ${mtd_parts_no} -ge 2 ];then
+		avail_devs="mtd"
+		((cnt++))
+	fi
 fi
 
 all_devs=$(ls /sys/class/block/*/capability | awk -F"/" '($5~/sd|mmc/)&&($0=$5)')
