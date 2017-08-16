@@ -1,6 +1,6 @@
 setenv bootargs "root=/dev/ram0 rw ramdisk_size=16384 console=$tty vram=16M auto_install ${board_param}"
 setenv ramimg ramdisk.img
-setenv fdtfile ramdisk.dtb
+test -z "$fdtfile" && setenv fdtfile ramdisk.dtb
 setenv kernel kernel.img
 
 # Script start
