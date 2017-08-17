@@ -27,9 +27,8 @@ rootfs.tar.bz2 - file system image
 install.ext2   - etx2 image that contains all:
 	common and platform specific installaton scripts.
 
-rootfs-update - file system update image
-<module kernel> - module kernel image
-<module DTB> - module device tree
+zImage* - target kernel image
+*.dtb - target device tree files
 
 Tools
 --------------------------
@@ -55,3 +54,32 @@ tools/bootscr.mk - bootscr.img creator
 	export platform=imx6
 	./tools/bootscr.mk
 	cp boot.scr.imx6 <sd-installer-mount-point>/boot.scr
+
+Installation instructions
+---------------------------
+* Obtain an SD card. Any commercially available SD card of 1GB (or larger) may be used.
+* Create a first partition on it. The partition can be formatted either ext2/3/4 or FAT file system.
+Note: usually a brand new SD cards are already formatted and should not need re-partitioning and re-formatting.
+* Copy all files, described in the "Installation SD card files" section, to the first partition on the installation media (SD card).
+* Plug the installation media in the target device.
+* Turn on the target device.
+* The system will boot from the installation media and start the automatic installation procedure.
+
+Terminal capture of example installation:
+===CompuLab Automatic Installation System 0.1.0 (Aug 15 2017)===
+Press any key to cancel installation   0
+=== Mount Source /dev/mmcblk1p1 ===
+* mount_source [  ]
+===Installing OS===
+* Updating partitions
+* Formatting partitions
+* mount_destination [  ]
+* Copying kernel files
+* Extracting user space rootfs.tar.bz2
+ 393MiB 0:04:01 [1.63MiB/s] [================================>] 100%            
+* unmount_destination [  ]
+=== Unmount Source /dev/mmcblk1p1 ===
+* unmount_source [  ]
+Please remove installation SD card ...
+Press any key to cancel restart   0
+
