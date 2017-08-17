@@ -1,4 +1,19 @@
 #!/bin/sh
+#
+# Automatic installation system
+#
+# Copyright (C) 2017 CompuLab, Ltd.
+# Author: Uri Mashiach <uri.mashiach@compulab.co.il>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or later
+# version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 
 ##### Functions #####
 count_down()
@@ -21,8 +36,16 @@ count_down()
 
 ##### Main #####
 # Constants
+AUTO_INSTALL_VERSION="0.1.0"
+AUTO_INSTALL_VERSION_DATE="Aug 15 2017"
+AUTO_INSTALL_BANNER="CompuLab Automatic Installation System ${AUTO_INSTALL_VERSION} (${AUTO_INSTALL_VERSION_DATE})"
 AUTO_INSTALL="auto_install"
-MPOINT=/root/install
+MPOINT=$(dirname $BASH_SOURCE)
+
+. "${MPOINT}/messages.sh"
+
+# Display version
+title "${AUTO_INSTALL_BANNER}"
 
 # Get kernel command line
 k_command=$(cat /proc/cmdline)
@@ -38,12 +61,13 @@ then
         exit 0;
 fi
 
-# Start all init scripts in /root/install
+# Start all init scripts in /mnt/install
 # executing them in numerical order.
 for i in ${MPOINT}/[0-9][0-9]*.sh ;do
 	# Ignore dangling symlinks (if any).
 	[ ! -f "$i" ] && continue
 	. $i
+	[ $? -ne 0 ] && exit 1
 done
 
 echo "Please remove installation SD card ..."

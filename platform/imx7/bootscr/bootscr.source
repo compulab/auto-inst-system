@@ -1,8 +1,19 @@
 #System installation for CL-SOM-iMX7
 
+# Next run parameters
+setenv bootcmd_next ${bootcmd}
+setenv bootcmd 'setenv bootcmd $bootcmd_next; setenv bootcmd_next ""; saveenv; run emmcboot; run nandboot; run defaultboot'
+saveenv
+
 # Parameters
 setenv tty "ttymxc0,115200"
 setenv mmcdev 0
 setenv rdaddr 0x82000000
 setenv loadaddr 0x80800000
 setenv fdtaddr 0x83000000
+setenv fdt_high 0xffffffff
+setenv initrd_high 0xffffffff
+
+test -z "$fdtfile" && setenv fdtfile $fdt_file
+
+setenv board_param nand=4:0:3:0:5:0:rootfs

@@ -1,6 +1,21 @@
 #!/bin/bash
+#
+# Automatic instalation system
+#
+# Copyright (C) 2017 CompuLab, Ltd.
+# Author: Uri Mashiach <uri.mashiach@compulab.co.il>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or later
+# version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 
-SCR_PATH=/root/install
+SCR_PATH=$(dirname $BASH_SOURCE)
 mpoint=/tmp/_mount
 tarfile=rootfs.tar.bz2
 mfile=install.ext2
@@ -12,11 +27,16 @@ cnt=0
 source=""
 min_size_inb=2097152
 
+. "${SCR_PATH}/functions.sh"
+
 # Extract NAND parameters from cmdline
 nand_params=`cat /proc/cmdline | tr " " "\n" | grep nand | cut -d"=" -f2`
 if [ ! -z $nand_params ];then
-	avail_devs="mtd"
-	((cnt++))
+	mtd_parts_no=`cat /proc/mtd | grep -cE "(((kernel|linux)|dtb)|rootfs)"`
+	if [ ${mtd_parts_no} -ge 2 ];then
+		avail_devs="mtd"
+		((cnt++))
+	fi
 fi
 
 all_devs=$(ls /sys/class/block/*/capability | awk -F"/" '($5~/sd|mmc/)&&($0=$5)')
@@ -56,7 +76,10 @@ rm -rf ${mpoint}
 
 avail_devs="${avail_devs#"${avail_devs%%[![:space:]]*}"}"
 
-if [ $cnt -eq 1 ];then
+if [ $cnt -eq 0 ];then
+	err_msg $(basename $BASH_SOURCE): no destination media found
+	return 1
+elif [ $cnt -eq 1 ];then
 	destination="/dev/"${avail_devs}
 else
 	select_string=$(echo ${avail_devs}; echo "<<")
