@@ -1,0 +1,17 @@
+= Change Log
+
+All notable changes to this project will be documented in this file.
+
+The format is based on http://keepachangelog.com/[Keep a Changelog]
+and this project adheres to http://semver.org/[Semantic Versioning].
+
+== <<v1.0.1>> - 2017-09-03
+=== Changed
+* Converted README to AsciiDoc format.
+
+== v1.0.0 - 2017-08-17
+=== Added
+* Initial release. Supports creation of automatic installation environment for cm-t335, cm-t43, and Compulab SoM products based on am57x, imx6, imx6ul, imx7 platforms.
+
+[[v1.0.1]]
+[v1.0.1]: https://github.com/compulab/auto-inst-system/compare/v1.0.0…v1.0.1
