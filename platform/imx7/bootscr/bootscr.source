@@ -1,8 +1,8 @@
 #System installation for CL-SOM-iMX7
 
 # Next run parameters
-setenv bootcmd_next ${bootcmd}
-setenv bootcmd 'setenv bootcmd $bootcmd_next; setenv bootcmd_next ""; saveenv; run emmcboot; run nandboot; run defaultboot'
+setenv bootcmd_next "${bootcmd}"
+setenv bootcmd 'setenv bootcmd "$bootcmd_next"; setenv bootcmd_next; saveenv; run emmcboot; run nandboot; run defaultboot'
 saveenv
 
 # Parameters
