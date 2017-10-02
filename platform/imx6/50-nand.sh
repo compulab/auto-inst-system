@@ -32,10 +32,9 @@ DESTINATION_KERNEL_MEDIA=
 DESTINATION_FILESYSTEM_MEDIA=${UBIROOT}
 
 ## Preinstallation Sanicty Check ##
-[ $(basename $BASH_SOURCE) == $(basename $0) ] && EXIT="exit" || EXIT="return"
-[ -z ${SOURCE_MEDIA} ] && ${EXIT} 1
+[ -z ${SOURCE_MEDIA} ] && return 0
 
-stat ${SOURCE_MOUNT_PATH}/${ROOTFS_NAND_FILE} &>/dev/null || ${EXIT} 2
+stat ${SOURCE_MOUNT_PATH}/${ROOTFS_NAND_FILE} &>/dev/null || return 0
 
 ##### Main #####
 title "NAND Deployment"
