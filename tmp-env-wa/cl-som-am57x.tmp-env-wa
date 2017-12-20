@@ -1,0 +1,2 @@
+unreset_pcie=i2c dev 4; pca953x output 1 1
+bootcmd_next=run unreset_pcie; run mmcbootscript || run mmcboot || run satabootscript || run sataboot || run emmcbootscript || run emmcboot

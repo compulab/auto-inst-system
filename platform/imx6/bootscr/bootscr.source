@@ -1,10 +1,5 @@
 #System installation for CL-SOM-iMX6/CM-FX6
 
-# Next run parameters
-setenv bootcmd_installed 'env default -a; saveenv; run setupsataboot; sata init; run trybootsmz'
-setenv bootcmd $bootcmd_installed
-saveenv
-
 # Parameters
 setenv tty "ttymxc3,115200"
 setenv mmcdev 2

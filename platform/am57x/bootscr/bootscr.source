@@ -1,13 +1,5 @@
 #System installation for CL-SOM-AM57x
 
-# Next run parameters
-setenv unreset_pcie 'i2c dev 4; pca953x output 1 1'
-run emmcargs
-setenv load_emmc 'setenv mmcdev 1 && mmc dev ${mmcdev} && mmc rescan && run emmcloadkernel && run emmcloadfdt'
-setenv bootcmd_emmc 'run unreset_pcie; run mmcbootscript; run emmcboot'
-setenv bootcmd 'setenv bootcmd $bootcmd_emmc; saveenv; run unreset_pcie; run emmcboot'
-saveenv
-
 # Parameters
 setenv tty "ttyO2,115200"
 

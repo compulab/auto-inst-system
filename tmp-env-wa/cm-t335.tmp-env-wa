@@ -1,0 +1,19 @@
+blue_can=blue
+disp_type=lcd
+delete_dvi=fdt rm /panel/display-timings/dvi
+delete_lcd=fdt rm /panel/display-timings/lcd
+delete_lvds=fdt rm /panel/display-timings/lvds
+test_lcd=if test $disp_type = lcd; then run delete_dvi; run delete_lvds; fi
+test_dvi=if test $disp_type = dvi; then run delete_lcd; run delete_lvds; fi
+test_lvds=if test $disp_type = lvds; then run delete_lcd; run delete_dvi; fi
+update_display=run test_lcd; run test_dvi; run test_lvds
+delete_can=fdt rm d_can0; fdt rm d_can1
+delete_blue=fdt set serial1 status disab; fdt rm /ocp/spi/wlcore
+update_blue_can=if test $blue_can = blue; then run delete_can; fi; if test $blue_can = can; then run delete_blue; fi
+update_fdt=fdt addr ${fdtaddr}; run update_display; run update_blue_can
+fdtaddr=0x83000000
+nandload_z=nand read ${loadaddr} 900000 400000 && nand read ${fdtaddr} 400000 10000
+nandboot_z=run nandargs; run nandload_z && run update_fdt; bootz ${loadaddr} - ${fdtaddr}
+mmcload_z=load mmc ${mmcdev}:${mmcpart} ${loadaddr} zImage-cm-t335; load mmc ${mmcdev}:${mmcpart} ${fdtaddr} am335x-sbc-t335.dtb
+mmcboot_z=run mmcargs; run mmcload_z && run update_fdt && bootz ${loadaddr} - ${fdtaddr}
+bootcmd_next=mmc dev ${mmcdev}; if mmc rescan; then if run loadbootscript; then run bootscript; fi; fi; run mmcboot_z; run nandboot_z

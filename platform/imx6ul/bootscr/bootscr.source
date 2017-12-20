@@ -1,10 +1,5 @@
 #System installation for CL-SOM-iMX6UL
 
-# Next run parameters
-setenv bootcmd_installed 'env default -a; setenv mmcdev 1; saveenv; run bootcmd'
-setenv bootcmd $bootcmd_installed
-saveenv
-
 # Parameters
 setenv tty "ttymxc2,115200"
 setenv mmcdev 0
