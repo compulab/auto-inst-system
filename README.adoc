@@ -16,9 +16,6 @@ Latest working ramdisk is found in the repository as *ramdisk.img*
 * *rootfs.tar.bz2* - file system image.
   If the file is not provided, the *S10-install* exits with an error, and the
   main stript continues the script list execution
-* ***.update.tar.bz2** - file system update image(s)
-  If there are no files that match the pattern, the *S30-update* exits with an
-  error, and the main stript continues the script list execution.
 * *install.ext2* - etx2 image that contains all: common and platform specific installaton scripts.
 * *zImage** - target kernel image
 * ***.dtb** - target device tree files
