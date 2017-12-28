@@ -19,8 +19,15 @@
 
 # Extract the U-Boot environment configuration section from the configuration file
 sed '1,/^\[ fw_env.config/d;/^\[/,$d' ${CONFIG_FILE} > /etc/fw_env.config
+#extract target media
+target_media=$(basename "$DESTINATION_MEDIA")
 # Extract the installation media boot command
-first_boot=`grep first_boot= ${CONFIG_FILE} | cut -d= -f2-`
+if [ -z "$target_media" ]; then
+	first_boot_key=first_boot
+else
+	first_boot_key=first_boot_${target_media}
+fi
+first_boot=`grep ${first_boot_key}= ${CONFIG_FILE} | cut -d= -f2-`
 # Extract the environment unlock device
 unlock_dev=`grep unlock_dev= ${CONFIG_FILE} | cut -d= -f2-`
 # Set environment variables bootcmd and bootcmd_next
