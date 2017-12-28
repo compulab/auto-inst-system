@@ -21,6 +21,7 @@ tarfile=rootfs.tar.bz2
 mfile=install.ext2
 board_param_file=${SCR_PATH}/board_params.sh
 source_mount_path=/mnt/install
+config_file=${source_mount_path}/config
 
 destination=""
 avail_devs=""
@@ -30,6 +31,11 @@ min_size_inb=2097152
 
 . "${SCR_PATH}/functions.sh"
 
+# Verify platform configuration file existence
+if [ ! -f ${config_file} ];then
+	err_msg Platform configuration file is missing
+	exit 1
+fi
 # Extract NAND parameters from cmdline
 nand_params=`cat /proc/cmdline | tr " " "\n" | grep nand | cut -d"=" -f2`
 if [ ! -z $nand_params ];then
@@ -112,4 +118,5 @@ DESTINATION_KERNEL_MEDIA=${destination}${part_pref}1
 DESTINATION_FILESYSTEM_MEDIA=${destination}${part_pref}2
 FILESYSTEM_ARCHIVE_NAME=${tarfile}
 NAND_PARAMS=${nand_params}
+CONFIG_FILE=${config_file}
 eof
