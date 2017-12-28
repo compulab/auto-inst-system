@@ -110,7 +110,9 @@ format_partitions_nand() {
                 err_msg ${FUNCNAME[0]}: invalid NAND parameters: NAND_PARAMS=${NAND_PARAMS}
 		return 1
 	fi
-	flash_erase_f ${MTD_DEV_DTB} 0 0 || return $?
+	if [ ${MTD_DEV_DTB} -ne ${MTD_DEV_KERNEL} ];then
+		flash_erase_f ${MTD_DEV_DTB} 0 0 || return $?
+	fi
 }
 
 ubi_format() {
