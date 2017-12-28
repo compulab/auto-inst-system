@@ -19,7 +19,7 @@ copy_kernel_files() {
 	announce "Copying kernel files"
 	if [ ! -z ${NAND_PARAMS} ];then
 		copy_kernel_files_nand
-		return
+		return $?
 	fi
 	files='*.dtb zImage*'
 	for file in ${files};do
@@ -75,11 +75,15 @@ copy_kernel_files_nand() {
 	nand_write ${MTD_DEV_KERNEL} ${SOURCE_MOUNT_PATH}/${file} $MTD_OFFS_KERNEL || return $?
 	MTD_OFFS_DTB=`echo $NAND_PARAMS | cut -d":" -f2`
 	[ -z $MTD_DEV_DTB ] || [ -z $MTD_OFFS_DTB ] && return
-	files=`ls ${SOURCE_MOUNT_PATH}/*.dtb`
-	for file in ${files};do
-		[ ${file##*/} == "ramdisk.dtb" ] && continue
-		stat ${file} &>/dev/null
-		[ $? -ne 0 ] && continue
-		nand_write ${MTD_DEV_DTB} ${file} $MTD_OFFS_DTB || return $?
-	done
+	DTB_FILE=`grep dtb_file= ${CONFIG_FILE} | cut -d= -f2-`
+	if [ -z $DTB_FILE ]; then
+		err_msg ${FUNCNAME[0]}: configuration dtb_file is missing
+		return 1
+	fi
+	DTB_FILE=${SOURCE_MOUNT_PATH}/${DTB_FILE}
+	if [ ! -f ${DTB_FILE} ]; then
+		err_msg ${FUNCNAME[0]}: device tree blob file ${DTB_FILE} not found
+		return 1
+	fi
+	nand_write ${MTD_DEV_DTB} ${DTB_FILE} $MTD_OFFS_DTB || return $?
 }
