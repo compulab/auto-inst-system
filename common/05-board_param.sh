@@ -86,25 +86,31 @@ avail_devs="${avail_devs#"${avail_devs%%[![:space:]]*}"}"
 if [ $cnt -eq 0 ];then
 	err_msg $(basename $BASH_SOURCE): no destination media found
 	return 1
-elif [ $cnt -eq 1 ];then
-	destination="/dev/"${avail_devs}
-else
-	select_string=$(echo ${avail_devs}; echo "<<")
-	PS3="select a destination device > "
-	select i in $select_string; do
-		case $i in
-			"<<")
-			exit
-			break
-			;;
-			*)
-			destination="/dev/"$i
-			echo "destination device is "${destination}
-			break
-			;;
-		esac
-	done
 fi
+
+# Convert the available list to array
+avail_devs=($avail_devs)
+# Get the target list
+target_media=$( awk '/^target_media/ { gsub(/.*=/, "", $1); print }' ${config_file} )
+target_media=($target_media)
+
+for i in ${target_media[@]}; do
+	for j in ${avail_devs[@]}; do
+		if [ ${i} == ${j} ]; then
+			destination=${i}
+			break 2
+		fi
+	done
+done
+
+if [ -z $destination ]; then
+	err_msg $(basename $BASH_SOURCE): no target media found
+	err_msg Available media: ${avail_devs[@]}
+	return 1
+fi
+
+destination="/dev/"${destination}
+
 part_pref=$([[ ${destination} =~ "mmc" ]] &&  echo -n "p")
 
 if [ $destination != "/dev/mtd" ];then
