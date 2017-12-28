@@ -5,4 +5,3 @@ setenv rdaddr 0x81000000
 setenv fdtaddr 0x83000000
 setenv mmcdev 0:1
 setenv tty ${console}
-setenv board_param nand=3:0:5:0:6:0:rootfs

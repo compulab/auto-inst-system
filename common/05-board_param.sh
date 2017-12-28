@@ -36,8 +36,8 @@ if [ ! -f ${config_file} ];then
 	err_msg Platform configuration file is missing
 	exit 1
 fi
-# Extract NAND parameters from cmdline
-nand_params=`cat /proc/cmdline | tr " " "\n" | grep nand | cut -d"=" -f2`
+# Extract NAND parameters from the platform configuration file
+nand_params=`mtd= ${config_file} | cut -d= -f2-`
 if [ ! -z $nand_params ];then
 	mtd_parts_no=`cat /proc/mtd | grep -cE "(((kernel|linux)|dtb)|rootfs)"`
 	if [ ${mtd_parts_no} -ge 2 ];then

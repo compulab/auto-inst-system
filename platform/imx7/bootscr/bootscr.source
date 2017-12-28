@@ -10,5 +10,3 @@ setenv fdt_high 0xffffffff
 setenv initrd_high 0xffffffff
 
 test -z "$fdtfile" && setenv fdtfile $fdt_file
-
-setenv board_param nand=4:0:3:0:5:0:rootfs
