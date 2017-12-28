@@ -20,6 +20,7 @@ mpoint=/tmp/_mount
 tarfile=rootfs.tar.bz2
 mfile=install.ext2
 board_param_file=${SCR_PATH}/board_params.sh
+source_mount_path=/mnt/install
 
 destination=""
 avail_devs=""
@@ -105,7 +106,7 @@ if [ $destination != "/dev/mtd" ];then
 fi
 
 cat << eof > ${board_param_file}
-SOURCE_MEDIA=${source}
+SOURCE_MOUNT_PATH=${source_mount_path}
 DESTINATION_MEDIA=${destination}
 DESTINATION_KERNEL_MEDIA=${destination}${part_pref}1
 DESTINATION_FILESYSTEM_MEDIA=${destination}${part_pref}2

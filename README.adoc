@@ -63,8 +63,6 @@ Terminal capture of example installation:
 
     ===CompuLab Automatic Installation System 0.1.0 (Aug 15 2017)===
     Press any key to cancel installation   0
-    === Mount Source /dev/mmcblk1p1 ===
-    * mount_source [  ]
     ===Installing OS===
     * Updating partitions
     * Formatting partitions
@@ -74,6 +72,5 @@ Terminal capture of example installation:
      393MiB 0:04:01 [1.63MiB/s] [================================>] 100%            
     * unmount_destination [  ]
     === Unmount Source /dev/mmcblk1p1 ===
-    * unmount_source [  ]
     Please remove installation SD card ...
     Press any key to cancel restart   0

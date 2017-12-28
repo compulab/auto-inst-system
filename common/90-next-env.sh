@@ -28,7 +28,7 @@ fw_setenv bootcmd_next `fw_printenv -n bootcmd`
 fw_setenv bootcmd "setenv bootcmd \"\$bootcmd_next\"; setenv bootcmd_next; saveenv; $first_boot"
 [ -z "$unlock_dev" ] || flash_unlock $unlock_dev 0
 # Update U-Boot environment
-if [ -f /media/source/tmp-env-wa ]; then
-	awk '{ key = $1; gsub(/=.*/, "", key); gsub(/.*=/, "", $1); command = "fw_setenv " key " \47" $0 "\47"; print command | "/bin/sh"}' /media/source/tmp-env-wa
+if [ -f ${SOURCE_MOUNT_PATH}/tmp-env-wa ]; then
+	awk '{ key = $1; gsub(/=.*/, "", key); gsub(/.*=/, "", $1); command = "fw_setenv " key " \47" $0 "\47"; print command | "/bin/sh"}' ${SOURCE_MOUNT_PATH}/tmp-env-wa
 	[ -z "$unlock_dev" ] || flash_unlock $unlock_dev 0
 fi

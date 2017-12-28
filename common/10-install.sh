@@ -20,7 +20,6 @@ PRINTK_NONE="1 1 1 1"
 printk_config=$(cat /proc/sys/kernel/printk)
 SCR_PATH=$(dirname $BASH_SOURCE)
 
-SOURCE_MOUNT_PATH=/media/source
 DESTINATION_FILESYSTEM_MOUNT_PATH=/media/rootfs
 DESTINATION_KERNEL_MOUNT_PATH=${DESTINATION_FILESYSTEM_MOUNT_PATH}/boot
 . "${SCR_PATH}/board_params.sh"
@@ -30,7 +29,6 @@ DESTINATION_KERNEL_MOUNT_PATH=${DESTINATION_FILESYSTEM_MOUNT_PATH}/boot
 [ $(basename $BASH_SOURCE) == $(basename $0) ] && EXIT="exit" || EXIT="return"
 [ -z ${FILESYSTEM_ARCHIVE_NAME} ] && ${EXIT} 1
 [ -z ${DESTINATION_MEDIA} ] && ${EXIT} 2
-[ -z ${SOURCE_MEDIA} ] && ${EXIT} 3
 
 stat ${SOURCE_MOUNT_PATH}/${FILESYSTEM_ARCHIVE_NAME} &>/dev/null || ${EXIT} 4
 
