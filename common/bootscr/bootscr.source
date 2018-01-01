@@ -1,10 +1,15 @@
-setenv bootargs "root=/dev/ram0 rw ramdisk_size=16384 console=$tty vram=16M auto_install ${board_param}"
 setenv ramimg ramdisk.img
 test -z "$fdtfile" && setenv fdtfile ramdisk.dtb
 setenv kernel kernel.img
 
 test -z "$storagetype" && setenv storagetype mmc
 test -z "$storagedev" && setenv storagedev ${mmcdev}
+
+# Read parameters from platform configuration file
+load ${storagetype} ${storagedev} ${loadaddr} config
+env import -t ${loadaddr} ${filesize}
+
+setenv bootargs "root=/dev/ram0 rw ramdisk_size=16384 console=$tty vram=16M auto_install ${board_param}"
 
 # Script start
 load ${storagetype} ${storagedev} ${fdtaddr} ${fdtfile}
