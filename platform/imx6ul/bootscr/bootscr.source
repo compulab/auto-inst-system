@@ -1,8 +1,0 @@
-#System installation for CL-SOM-iMX6UL
-
-# Parameters
-setenv tty "ttymxc2,115200"
-setenv mmcdev 0
-setenv rdaddr 0x81000000
-setenv loadaddr 0x82000000
-setenv fdtaddr 0x83000000

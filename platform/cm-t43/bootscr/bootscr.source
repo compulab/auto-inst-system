@@ -1,8 +1,0 @@
-#System installation for CM-T43
-
-# Parameters
-setenv tty "ttyO0,115200"
-setenv mmcdev 0
-setenv loadaddr 0x80200000
-setenv fdtaddr 0x81200000
-setenv rdaddr 0x82200000

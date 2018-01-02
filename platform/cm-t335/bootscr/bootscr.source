@@ -1,7 +1,0 @@
-#System installation for CM-T335
-
-# Parameters
-setenv rdaddr 0x81000000
-setenv fdtaddr 0x83000000
-setenv mmcdev 0:1
-setenv tty ${console}

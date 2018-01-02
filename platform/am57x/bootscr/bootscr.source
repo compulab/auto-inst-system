@@ -1,5 +1,0 @@
-#System installation for CL-SOM-AM57x
-
-# Parameters
-setenv tty "ttyO2,115200"
-
