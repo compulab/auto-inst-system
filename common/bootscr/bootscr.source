@@ -1,9 +1,13 @@
+setenv mmc_test 'if load ${storagetype} ${storagedev} ${loadaddr} config; then; else setexp storagedev $storagedev + 1; test $storagedev -ge 5 || run mmc_test; fi'
+
 setenv ramimg ramdisk.img
 test -z "$fdtfile" && setenv fdtfile ramdisk.dtb
 setenv kernel kernel.img
 
 test -z "$storagetype" && setenv storagetype mmc
 test -z "$storagedev" && setenv storagedev ${mmcdev}
+# If storagedev is empty, try dev 0 - 4
+test -z "$storagedev" && setenv storagedev 0 && run mmc_test
 
 # Read parameters from platform configuration file
 load ${storagetype} ${storagedev} ${loadaddr} config
