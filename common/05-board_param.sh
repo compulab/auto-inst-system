@@ -19,7 +19,7 @@ SCR_PATH=$(dirname $BASH_SOURCE)
 mpoint=/tmp/_mount
 tarfile=rootfs.tar.bz2
 mfile=install.ext2
-board_param_file=${SCR_PATH}/board_params.sh
+board_param_file=/tmp/board_params.sh
 source_mount_path=/mnt/install
 config_file=${source_mount_path}/config
 

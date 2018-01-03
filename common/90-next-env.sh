@@ -15,7 +15,7 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-. "${SCR_PATH}/board_params.sh"
+. "/tmp/board_params.sh"
 
 # Extract the U-Boot environment configuration section from the configuration file
 sed '1,/^\[ fw_env.config/d;/^\[/,$d' ${CONFIG_FILE} > /etc/fw_env.config

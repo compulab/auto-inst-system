@@ -22,7 +22,7 @@ SCR_PATH=$(dirname $BASH_SOURCE)
 
 DESTINATION_FILESYSTEM_MOUNT_PATH=/media/rootfs
 DESTINATION_KERNEL_MOUNT_PATH=${DESTINATION_FILESYSTEM_MOUNT_PATH}/boot
-. "${SCR_PATH}/board_params.sh"
+. "/tmp/board_params.sh"
 . "${SCR_PATH}/functions.sh"
 
 ## Preinstallation Sanicty Check ##
