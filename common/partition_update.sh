@@ -51,7 +51,7 @@ extract_userspace() {
 }
 
 nand_write() {
-	announce "$FUNCNAME [ $@ ]"
+	debug_msg "$FUNCNAME [ $@ ]"
 	dev=$1; src=$2; off=$3
 	if [ -z $dev ] || [ -z $src ] || [ -z $off ];then
 		err_msg ${FUNCNAME[0]}: invalid input parameters: dev=${dev} src={src} off={off}

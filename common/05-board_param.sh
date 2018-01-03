@@ -46,6 +46,9 @@ if [ ! -z $nand_params ];then
 	fi
 fi
 
+# Extract debug flag from the platform configuration file
+debug_install=`grep debug_install= ${config_file} | cut -d= -f2-`
+
 all_devs=$(ls /sys/class/block/*/capability | awk -F"/" '($5~/sd|mmc/)&&($0=$5)')
 mkdir -p ${mpoint}
 for dev in ${all_devs};do
@@ -125,4 +128,5 @@ DESTINATION_FILESYSTEM_MEDIA=${destination}${part_pref}2
 FILESYSTEM_ARCHIVE_NAME=${tarfile}
 NAND_PARAMS=${nand_params}
 CONFIG_FILE=${config_file}
+DEBUG_INSTALL=${debug_install}
 eof

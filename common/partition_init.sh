@@ -73,7 +73,7 @@ format_partitions() {
 
 
 flash_erase_f() {
-	announce "$FUNCNAME [ $@ ]"
+	debug_msg "$FUNCNAME [ $@ ]"
 	dev=$1; off=$2; cnt=$3
 	if [ -z $dev ] || [ -z $cnt ] || [ -z $off ] ; then
 		err_msg ${FUNCNAME[0]}: missing parameters: dev=${dev} cnt=${cnt} off=${off}
@@ -116,7 +116,7 @@ format_partitions_nand() {
 }
 
 ubi_format() {
-	announce "$FUNCNAME [ $@ ]"
+	debug_msg "$FUNCNAME [ $@ ]"
 	dev=$1
 	[ -z $dev ] && return
 	mtd="/dev/mtd"${dev}
@@ -129,7 +129,7 @@ ubi_format() {
 }
 
 ubi_mkvol() {
-	announce "$FUNCNAME [ $@ ]"
+	debug_msg "$FUNCNAME [ $@ ]"
 	ubi=$1; name=$2
 	[ -z $ubi ] || [ -z $name ] && return
 	ubi='/dev/ubi'${ubi}

@@ -48,7 +48,7 @@ umount_dev() {
 }
 
 mount_destination() {
-	announce "$FUNCNAME [ $@ ]"
+	debug_msg "$FUNCNAME [ $@ ]"
 	if [ ! -z ${NAND_PARAMS} ];then
 		mount_destination_nand
 	fi
@@ -91,7 +91,7 @@ mount_destination() {
 }
 
 unmount_destination() {
-	announce "$FUNCNAME [ $@ ]"
+	debug_msg "$FUNCNAME [ $@ ]"
 	if [ ! -z ${NAND_PARAMS} ];then
 		umount_destination_nand
 		return $?
@@ -135,7 +135,7 @@ umount_destination_nand() {
 }
 
 ubi_attach() {
-	announce "$FUNCNAME [ $@ ]"
+	debug_msg "$FUNCNAME [ $@ ]"
 	mtd=$1; ubi=$2
 	[ -z $mtd ] || [ -z $ubi ] && return
 	${UBIATTACH} -m ${mtd} -d ${ubi} 1>&- 2>&-
@@ -147,7 +147,7 @@ ubi_attach() {
 }
 
 ubi_detach() {
-	announce "$FUNCNAME [ $@ ]"
+	debug_msg "$FUNCNAME [ $@ ]"
 	ubi=$1
 	[ -z $ubi ] && return
 	${UBIDETACH} -d ${ubi}
