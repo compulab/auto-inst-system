@@ -18,7 +18,7 @@ UBIFORAMT=$(which ubiformat &>/dev/null && which ubiformat || echo -n 'echo ubif
 UBIMKVOL=$(which ubimkvol &>/dev/null && which ubimkvol || echo -n 'echo ubimkvol')
 DD=$(which dd &>/dev/null && which dd || echo -n 'echo dd')
 SFDISK=$(which sfdisk &>/dev/null && which sfdisk || echo -n 'echo sfdisk')
-SFDISK_CONF_FILE_BLOCK=$(dirname $BASH_SOURCE)/sfdisk-block.conf
+SFDISK_CONF_FILE_BLOCK=/tmp/sfdisk-block.conf
 
 create_partitions() {
 	announce "Updating partitions"
@@ -36,11 +36,12 @@ create_partitions() {
 			${DD} if=/dev/zero of=${DESTINATION_MEDIA} bs=1M count=1
 		return ${ret}
 	fi
-	${SFDISK} -f ${DESTINATION_MEDIA} -uM < ${SFDISK_CONF_FILE_BLOCK} &> /dev/null
+	extract_partitions_parameters || return $?
+	${SFDISK} -uM -f ${DESTINATION_MEDIA} < ${SFDISK_CONF_FILE_BLOCK} &> /dev/null
 	ret=$?; if [ ${ret} -ne 0 ];then
 		err_msg ${FUNCNAME[0]}: failed to create partitions: ${ret}
 		err_msg ${FUNCNAME[0]}: failed cmd: \
-			${SFDISK} -f ${DESTINATION_MEDIA} -uM < ${SFDISK_CONF_FILE_BLOCK}
+			${SFDISK} -uM -f ${DESTINATION_MEDIA} \< ${SFDISK_CONF_FILE_BLOCK}
 		return ${ret}
 	fi
 	# Refresh the device nodes
@@ -138,5 +139,36 @@ ubi_mkvol() {
 		err_msg ${FUNCNAME[0]}: ubimkvol failure: ${ret}
 		err_msg ${FUNCNAME[0]}: failed cmd: ${UBIMKVOL} ${ubi} -m -N ${name}
 		return ${ret}
+	fi
+}
+
+# Convert the [ Block Device partitions ] section to sfdisk format
+extract_partitions_parameters() {
+	IFT=$'\r\n'
+	partition_list=( $(grep ^partition=[0-9]* ${CONFIG_FILE} | sort ) )
+	unset IFS
+	for (( i=0; i<=${#partition_list[*]} - 1; i++ )); do
+		read partition size boot type <<< $(IFS=":"; echo ${partition_list[i]})
+		if [ -z ${size} ]; then
+			syntax_error="${FUNCNAME[0]}: ${partition}: missing size parameter"
+		elif [ "$size" == "max" ]; then
+			size="+"
+		else
+			index=`expr index "$size" M`
+			if [ $index -gt 0 ]; then
+				size=${size%M}
+			else
+				index=`expr index "$size" G`
+				if [ $index -gt 0 ]; then
+					size=$((${size%G}*1024))
+				fi
+			fi
+		fi
+		[ "$boot" == "boot" ] && boot=",*"
+		printf "%s,%s,%s%s\n" "-" ${size} ${type} "$boot" >> /tmp/sfdisk-block.conf
+	done
+	if [ ! -z "${syntax_error}" ]; then
+		err_msg "${syntax_error}"
+		return 1
 	fi
 }
