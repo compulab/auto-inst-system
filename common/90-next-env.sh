@@ -15,10 +15,40 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
+SCR_PATH=$(dirname $BASH_SOURCE)
 . "/tmp/board_params.sh"
+. "${SCR_PATH}/functions.sh"
 
 # Extract the U-Boot environment configuration section from the configuration file
-sed '1,/^\[ fw_env.config/d;/^\[/,$d' ${CONFIG_FILE} > /etc/fw_env.config
+regex_hex="^0[xX][[:xdigit:]]+$"
+env_dev=`grep env_dev= ${CONFIG_FILE} | cut -d= -f2-`
+if [ -z ${env_dev} ]; then
+       err_msg environment device parameter \"env_dev\" is missing
+       return 1
+fi
+if [ ! -e ${env_dev} ]; then
+	err_msg environment device ${env_dev} is missing
+	return -1
+fi
+env_offset=`grep env_offset= ${CONFIG_FILE} | cut -d= -f2-`
+if [ -z ${env_offset} ] || [[ ! ${env_offset} =~ ${regex_hex} ]]; then
+       err_msg environment offset parameter \"env_offset\" is missing or invalid
+       return 1
+fi
+if [ -z "${env_dev##*mtd*}"  ]; then
+	env_size=`grep env_size= ${CONFIG_FILE} | cut -d= -f2-`
+	if [ -z ${env_size} ] || [[ ! ${env_size} =~ ${regex_hex} ]]; then
+		err_msg environment offset parameter \"env_size\" is missing or invalid
+		return 1
+	fi
+	env_sector_size=`grep env_sector_size= ${CONFIG_FILE} | cut -d= -f2-`
+	if [ -z ${env_sector_size} ] || [[ ! ${env_sector_size} =~ ${regex_hex} ]]; then
+		err_msg environment sector size parameter \"env_sector_size\" is missing or invalid
+		return 1
+	fi
+fi
+printf "$env_dev\t$env_offset\t$env_size\t$env_sector_size\n" > /etc/fw_env.config
+
 #extract target media
 target_media=$(basename "$DESTINATION_MEDIA")
 # Extract the installation media boot command
