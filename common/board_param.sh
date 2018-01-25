@@ -38,6 +38,8 @@ tranlate_target_media() {
 	IFS=$'\n'
 	sata_list=($(for i in ${scsi_list[@]}; do echo ${i}; done | grep sata | awk '{print $1}'))
 	sata_i=${#sata_list[@]}
+	usb_list=($(for i in ${scsi_list[@]}; do echo ${i}; done | grep usb | awk '{print $1}'))
+	usb_i=${#usb_list[@]}
 	unset IFS
 	for (( i=0; i<${#target_media[*]}; i++ )); do
 		case ${target_media[i]} in
@@ -67,6 +69,16 @@ tranlate_target_media() {
 				exit 1
 			elif [ ${sata_i} -eq 1 ];then
 				target_media_trans[i]=${sata_list}
+			else
+				target_media_trans[i]=${target_media[i]}
+			fi
+			;;
+		usb)
+			if [ ${usb_i} -gt 1 ];then
+				err_msg ${FUNCNAME[0]}: multiple destination usb media found
+				exit 1
+			elif [ ${usb_i} -eq 1 ];then
+				target_media_trans[i]=${usb_list}
 			else
 				target_media_trans[i]=${target_media[i]}
 			fi
