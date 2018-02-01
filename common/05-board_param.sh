@@ -97,13 +97,15 @@ avail_devs=($avail_devs)
 target_media=$( awk '/^target_media/ { gsub(/.*=/, "", $1); print }' ${config_file} )
 target_media=($target_media)
 
-for i in ${target_media[@]}; do
-	for j in ${avail_devs[@]}; do
-		if [ ${i} == ${j} ]; then
-			destination=${i}
-			break 2
-		fi
-	done
+# Translate target media type to target media device
+tranlate_target_media
+
+for (( i=0; i<${#target_media_trans[*]}; i++ )); do
+	if [[ ${avail_devs[@]} =~ ${target_media_trans[i]} ]]; then
+		destination=${target_media_trans[i]}
+		destination_type=${target_media[i]}
+		break
+	fi
 done
 
 if [ -z $destination ]; then
@@ -123,6 +125,7 @@ fi
 cat << eof > ${board_param_file}
 SOURCE_MOUNT_PATH=${source_mount_path}
 DESTINATION_MEDIA=${destination}
+DESTINATION_MEDIA_TYPE=${destination_type}
 DESTINATION_KERNEL_MEDIA=${destination}${part_pref}1
 DESTINATION_FILESYSTEM_MEDIA=${destination}${part_pref}2
 FILESYSTEM_ARCHIVE_NAME=${tarfile}
@@ -130,3 +133,5 @@ NAND_PARAMS=${nand_params}
 CONFIG_FILE=${config_file}
 DEBUG_INSTALL=${debug_install}
 eof
+
+title " Installation Target: ${destination_type} "

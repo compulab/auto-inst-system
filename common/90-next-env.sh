@@ -49,15 +49,15 @@ if [ -z "${env_dev##*mtd*}"  ]; then
 fi
 printf "$env_dev\t$env_offset\t$env_size\t$env_sector_size\n" > /etc/fw_env.config
 
-#extract target media
-target_media=$(basename "$DESTINATION_MEDIA")
 # Extract the installation media boot command
-if [ -z "$target_media" ]; then
+if [ -z "${DESTINATION_MEDIA_TYPE}" ]; then
 	first_boot_key=first_boot
 else
-	first_boot_key=first_boot_${target_media}
+	first_boot_key=first_boot_${DESTINATION_MEDIA_TYPE}
 fi
 first_boot=`grep ${first_boot_key}= ${CONFIG_FILE} | cut -d= -f2-`
+# Update root file system path
+first_boot=$(sed "s%root=[[:graph:]]*%root=${DESTINATION_FILESYSTEM_MEDIA}%" <<<${first_boot})
 # Extract the environment unlock device
 unlock_dev=`grep unlock_dev= ${CONFIG_FILE} | cut -d= -f2-`
 # Set environment variables bootcmd and bootcmd_next
