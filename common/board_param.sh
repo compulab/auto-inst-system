@@ -83,7 +83,7 @@ tranlate_target_media() {
 				target_media_trans[i]=${target_media[i]}
 			fi
 			;;
-		mtd)
+		nand)
 			target_media_trans[i]=${target_media[i]}
 			;;
 	        *)

@@ -36,12 +36,18 @@ if [ ! -f ${config_file} ];then
 	err_msg Platform configuration file is missing
 	exit 1
 fi
-# Extract NAND parameters from the platform configuration file
-nand_params=`mtd= ${config_file} | cut -d= -f2-`
-if [ ! -z $nand_params ];then
+
+# Get the target list
+target_media=(`grep target_media= ${config_file} | cut -d= -f2-`)
+
+# Add NAND to the available media list, if all of the following conditions apply:
+# * NAND is in the target media list
+# * The required MTD partitions exist
+nand_flag=`echo ${target_media[@]} | grep -c nand`
+if [ ${nand_flag} -ge 1 ];then
 	mtd_parts_no=`cat /proc/mtd | grep -cE "(((kernel|linux)|dtb)|rootfs)"`
 	if [ ${mtd_parts_no} -ge 2 ];then
-		avail_devs="mtd"
+		avail_devs="nand"
 		((cnt++))
 	fi
 fi
@@ -93,9 +99,6 @@ fi
 
 # Convert the available list to array
 avail_devs=($avail_devs)
-# Get the target list
-target_media=$( awk '/^target_media/ { gsub(/.*=/, "", $1); print }' ${config_file} )
-target_media=($target_media)
 
 # Translate target media type to target media device
 tranlate_target_media
@@ -118,10 +121,6 @@ destination="/dev/"${destination}
 
 part_pref=$([[ ${destination} =~ "mmc" ]] &&  echo -n "p")
 
-if [ $destination != "/dev/mtd" ];then
-	nand_params=
-fi
-
 cat << eof > ${board_param_file}
 SOURCE_MOUNT_PATH=${source_mount_path}
 DESTINATION_MEDIA=${destination}
@@ -129,7 +128,6 @@ DESTINATION_MEDIA_TYPE=${destination_type}
 DESTINATION_KERNEL_MEDIA=${destination}${part_pref}1
 DESTINATION_FILESYSTEM_MEDIA=${destination}${part_pref}2
 FILESYSTEM_ARCHIVE_NAME=${tarfile}
-NAND_PARAMS=${nand_params}
 CONFIG_FILE=${config_file}
 DEBUG_INSTALL=${debug_install}
 eof

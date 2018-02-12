@@ -49,7 +49,7 @@ umount_dev() {
 
 mount_destination() {
 	debug_msg "$FUNCNAME [ $@ ]"
-	if [ ! -z ${NAND_PARAMS} ];then
+	if [ ${DESTINATION_MEDIA_TYPE} == "nand" ];then
 		mount_destination_nand
 	fi
 	# Mount order is important
@@ -92,7 +92,7 @@ mount_destination() {
 
 unmount_destination() {
 	debug_msg "$FUNCNAME [ $@ ]"
-	if [ ! -z ${NAND_PARAMS} ];then
+	if [ ${DESTINATION_MEDIA_TYPE} == "nand" ];then
 		umount_destination_nand
 		return $?
 	fi

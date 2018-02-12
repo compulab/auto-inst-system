@@ -57,7 +57,9 @@ else
 fi
 first_boot=`grep ${first_boot_key}= ${CONFIG_FILE} | cut -d= -f2-`
 # Update root file system path
-first_boot=$(sed "s%root=[[:graph:]]*%root=${DESTINATION_FILESYSTEM_MEDIA}%" <<<${first_boot})
+if [ ${DESTINATION_MEDIA_TYPE} != "nand" ];then
+	first_boot=$(sed "s%root=[[:graph:]]*%root=${DESTINATION_FILESYSTEM_MEDIA}%" <<<${first_boot})
+fi
 # Extract the environment unlock device
 unlock_dev=`grep unlock_dev= ${CONFIG_FILE} | cut -d= -f2-`
 # Set environment variables bootcmd and bootcmd_next

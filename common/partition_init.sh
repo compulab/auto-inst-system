@@ -22,7 +22,7 @@ SFDISK_CONF_FILE_BLOCK=/tmp/sfdisk-block.conf
 
 create_partitions() {
 	announce "Updating partitions"
-	if [ ! -z ${NAND_PARAMS} ];then
+	if [ ${DESTINATION_MEDIA_TYPE} == "nand" ];then
 		return 0
 	fi
 	mdev -s 1>&- 2>&-
@@ -53,7 +53,7 @@ create_partitions() {
 
 format_partitions() {
 	announce "Formatting partitions"
-	if [ ! -z ${NAND_PARAMS} ];then
+	if [ ${DESTINATION_MEDIA_TYPE} == "nand" ];then
 		format_partitions_nand
 		return $?
 	fi
@@ -90,26 +90,34 @@ flash_erase_f() {
 }
 
 format_partitions_nand() {
-	MTD_DEV_KERNEL=`echo $NAND_PARAMS | cut -d":" -f3`
-	if [ -z $MTD_DEV_KERNEL ];then
-		err_msg ${FUNCNAME[0]}: variable MTD_DEV_KERNEL is empty
+	MTD_DEV_KERNEL=`grep nand_kernel_mtd_dev= ${config_file} | cut -d= -f2-`
+	if [ -z ${MTD_DEV_KERNEL} ];then
+		err_msg ${FUNCNAME[0]}: missing configuration: nand_kernel_mtd_dev
 		return 1
 	fi
 	flash_erase_f ${MTD_DEV_KERNEL} 0 0 || return $?
-	mtd_dev_root=`echo $NAND_PARAMS | cut -d":" -f5`
-	UBI_DEV_ROOT=`echo $NAND_PARAMS | cut -d":" -f6`
-	UBI_VOLNAME_ROOT=`echo $NAND_PARAMS | cut -d":" -f7`
-	if [ -z ${mtd_dev_root} ] || [ -z ${UBI_DEV_ROOT} ] || [ -z ${UBI_VOLNAME_ROOT} ];then
-		err_msg ${FUNCNAME[0]}: invalid NAND parameters: NAND_PARAMS=${NAND_PARAMS}
+	mtd_dev_root=`grep nand_rootfs_mtd_dev= ${config_file} | cut -d= -f2-`
+	if [ -z ${mtd_dev_root} ];then
+		err_msg ${FUNCNAME[0]}: missing configuration: nand_rootfs_mtd_dev
+		return 1
+	fi
+	UBI_DEV_ROOT=`grep nand_rootfs_ubi_dev= ${config_file} | cut -d= -f2-`
+	if [ -z ${UBI_DEV_ROOT} ];then
+		err_msg ${FUNCNAME[0]}: missing configuration: nand_rootfs_ubi_dev
+		return 1
+	fi
+	UBI_VOLNAME_ROOT=`grep nand_rootfs_ubi_vol= ${config_file} | cut -d= -f2-`
+	if [ -z ${UBI_VOLNAME_ROOT} ];then
+		err_msg ${FUNCNAME[0]}: missing configuration: nand_rootfs_ubi_vol
 		return 1
 	fi
 	ubi_format ${mtd_dev_root} || return $?
 	ubi_attach ${mtd_dev_root} ${UBI_DEV_ROOT} || return $?
 	ubi_mkvol ${UBI_DEV_ROOT} ${UBI_VOLNAME_ROOT} || return $?
-	MTD_DEV_DTB=`echo $NAND_PARAMS | cut -d":" -f1`
-	if [ -z $MTD_DEV_DTB ];then
-                err_msg ${FUNCNAME[0]}: invalid NAND parameters: NAND_PARAMS=${NAND_PARAMS}
-		return 1
+	MTD_DEV_DTB=`grep nand_dtb_mtd_dev= ${config_file} | cut -d= -f2-`
+	# Device tree blob file is not mandatory
+	if [ -z ${MTD_DEV_DTB} ];then
+		return 0
 	fi
 	if [ ${MTD_DEV_DTB} -ne ${MTD_DEV_KERNEL} ];then
 		flash_erase_f ${MTD_DEV_DTB} 0 0 || return $?
