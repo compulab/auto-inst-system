@@ -22,13 +22,17 @@ SCR_PATH=$(dirname $BASH_SOURCE)
 # Extract the U-Boot environment configuration section from the configuration file
 regex_hex="^0[xX][[:xdigit:]]+$"
 env_dev=`grep env_dev= ${CONFIG_FILE} | cut -d= -f2-`
-if [ -z ${env_dev} ]; then
-       err_msg environment device parameter \"env_dev\" is missing
-       return 1
-fi
-if [ ! -e ${env_dev} ]; then
-	err_msg environment device ${env_dev} is missing
-	return -1
+if [ -z "${env_dev}" ]; then
+	env_part_name=`grep env_part_name= ${CONFIG_FILE} | cut -d= -f2-`
+	if [ -z "${env_part_name}" ]; then
+		err_msg environment device parameters \"env_dev\" and \"env_part_name\" are missing
+		return 1
+	fi
+	env_dev=`grep "${env_part_name}" /proc/mtd | cut -d: -f1`
+	if [ -z "${env_dev}" ]; then
+		err_msg environment partition \"${env_part_name}\" is missing
+		return 1
+	fi
 fi
 env_offset=`grep env_offset= ${CONFIG_FILE} | cut -d= -f2-`
 if [ -z ${env_offset} ] || [[ ! ${env_offset} =~ ${regex_hex} ]]; then
@@ -41,13 +45,13 @@ if [ -z "${env_dev##*mtd*}"  ]; then
 		err_msg environment offset parameter \"env_size\" is missing or invalid
 		return 1
 	fi
-	env_sector_size=`grep env_sector_size= ${CONFIG_FILE} | cut -d= -f2-`
-	if [ -z ${env_sector_size} ] || [[ ! ${env_sector_size} =~ ${regex_hex} ]]; then
-		err_msg environment sector size parameter \"env_sector_size\" is missing or invalid
+	env_sector_size=`grep "${env_dev##*/}" /proc/mtd | cut -d" " -f3`
+	if [ -z "${env_sector_size}" ]; then
+		err_msg environment partition \"${env_dev}\" is missing
 		return 1
 	fi
 fi
-printf "$env_dev\t$env_offset\t$env_size\t$env_sector_size\n" > /etc/fw_env.config
+printf "/dev/${env_dev##*/}\t${env_offset}\t${env_size}\t0x${env_sector_size}\n" > /etc/fw_env.config
 
 # Extract the installation media boot command
 if [ -z "${DESTINATION_MEDIA_TYPE}" ]; then
