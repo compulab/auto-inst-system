@@ -1,0 +1,1 @@
+loadkernel_nand=nand read 0x80800000 0 800000

@@ -9,45 +9,138 @@ Requires no changes at all.
 Latest working ramdisk is found in the repository as *ramdisk.img*
 
 == Installation SD card files
-* *bootscr.img* - boot script image
+* *boot.scr* - boot script image
 * *ramdisk.img* - RAM disk image
 * *kernel.img* - installation kernel image
-* *ramdisk.dtb* - installation device tree
+* *ramdisk.dtb* - installation device tree (optional)
 * *rootfs.tar.bz2* - file system image.
   If the file is not provided, the *S10-install* exits with an error, and the
   main stript continues the script list execution
-* ***.update.tar.bz2** - file system update image(s)
-  If there are no files that match the pattern, the *S30-update* exits with an
-  error, and the main stript continues the script list execution.
-* *install.ext2* - etx2 image that contains all: common and platform specific installaton scripts.
+* *install.ext2* - etx2 image that contains all of the installation scripts.
 * *zImage** - target kernel image
 * ***.dtb** - target device tree files
+* *config* - configuration file
+* *tmp-env-wa* - key=value text file for updating the target U-Boot environment (optional)
 
 == Tools
-* *tools/install.ext2.mk* - ext2 image creator<br>
-Run it from the current directory. Select a desired platform (or export the platform environment variable) +
-Result: *install.ext2.${platform}* in the current directory. +
+* *tools/install.ext2.mk* - ext2 image creator +
+Run it from the current directory. +
+Result: *install.ext2* in the current directory. +
 Copy the file into the root directory of an installation SD card. +
 Sample run:
 
 [source,bash]
 ----
-export platform=imx6
 ./tools/install.ext2.mk
-cp install.ext2.imx6 <sd-installer-mount-point>/install.ext2
+cp install.ext2 <sd-installer-mount-point>/
 ----
 
-* **tools/bootscr.mk** - bootscr.img creator<br>
-Run it from the current directory, select a desired platform (or export the platform environment variable)<br>
-Result: **boot.scr.${platform}** in the current directory.<br>
-Copy the file into the root directory of an installation SD card.<br>
+* *tools/bootscr.mk* - bootscr.img creator +
+Run it from the current directory. +
+Result: *boot.scr* in the current directory. +
+Copy and rename the file into the root directory of an installation SD card. +
+The script image name is specific for every platform. +
 Sample run:
 
 [source,bash]
 ----
-export platform=imx6
 ./tools/bootscr.mk
-cp boot.scr.imx6 <sd-installer-mount-point>/boot.scr
+cp boot.scr <sd-installer-mount-point>/boot.scr
+----
+
+== Configuration file
+The configuration file includes installation parameters. +
+The parameters are in a key=value format. +
+The parameters are used by the U-Boot script and by the installation bash scripts. +
+Bash script's parameters description: +
+* *target_media* - A list of installation target media. The items are in descending priority order.
+Example:
+[source,bash]
+----
+target_media=eMMC nand usb
+----
+* *first_boot_** - for every installation target media, U-Boot boot command for the first boot after installation.
+Example:
+[source,bash]
+----
+first_boot_eMMC=run emmcboot
+----
+* *env_part_name* - U-Boot environment partition name. Alternative to *env_dev*.
+Example:
+[source,bash]
+----
+env_part_name=uboot environment
+----
+* *env_dev* - U-Boot environment partition device. Alternative to *env_part_name*.
+Example:
+[source,bash]
+----
+env_dev=/dev/mtd1
+----
+* *env_offset* - U-Boot environment partition offset.
+Example:
+----
+env_offset=0x0000
+----
+* *env_size* - U-Boot environment size.
+Example:
+----
+env_size=0x2000
+----
+* *partition* - block partition parameters, one for each partition. +
+Each partition value includes colon separated parameters for one partition. +
+Partition parameters: +
+*1st* - partition number +
+*2nd* - partition size. The size units are determined by the suffix: (M)egabyte, (G)igabyte. +
+The value "max" is treated as the rest of the storage space, can be used only in the last partition. +
+*3rd* - Can be blank or "boot". The value "boot" represent boot partition +
+*4th* - partition type https://linuxconfig.org/list-of-filesystem-partition-type-codes[code]. +
+Example:
+----
+partition=1:100M:boot:83
+partition=2:max::83
+----
+==== NAND target installation parameters
+* *dtb_file* - device tree file name for NAND installation.
+Example:
+[source,bash]
+----
+dtb_file=imx7d-sbc-imx7.dtb
+----
+* *nand_dtb_mtd_dev* - device tree MTD partition number.
+Example:
+----
+nand_dtb_mtd_dev=1
+----
+* *nand_dtb_mtd_offset* - device tree partition offset (optional).
+Example:
+----
+nand_dtb_mtd_offset=0x780000
+----
+* *nand_kernel_mtd_dev* - kernel MTD partition number.
+Example:
+----
+nand_kernel_mtd_dev=0
+----
+* *nand_kernel_offset* - kernel partition offset (optional).
+Example:
+----
+nand_kernel_offset=0
+----
+* *nand_rootfs_mtd_dev* - root file system MTD partition number.
+Example:
+----
+nand_rootfs_mtd_dev=2
+----
+* *nand_rootfs_ubi_dev* - root file system, UBI device number.
+Example:
+----
+nand_rootfs_ubi_dev=0
+----
+* *nand_rootfs_ubi_vol* - root file system, UBI volume name.
+Example:
+----
+nand_rootfs_ubi_vol=rootfs
 ----
 
 == Installation instructions
@@ -60,20 +153,16 @@ Note: usually a brand new SD cards are already formatted and should not need re-
 * The system will boot from the installation media and start the automatic installation procedure.
 
 Terminal capture of example installation:
-
-    ===CompuLab Automatic Installation System 0.1.0 (Aug 15 2017)===
-    Press any key to cancel installation   0
-    === Mount Source /dev/mmcblk1p1 ===
-    * mount_source [  ]
-    ===Installing OS===
-    * Updating partitions
-    * Formatting partitions
-    * mount_destination [  ]
-    * Copying kernel files
-    * Extracting user space rootfs.tar.bz2
-     393MiB 0:04:01 [1.63MiB/s] [================================>] 100%            
-    * unmount_destination [  ]
-    === Unmount Source /dev/mmcblk1p1 ===
-    * unmount_source [  ]
-    Please remove installation SD card ...
-    Press any key to cancel restart   0
+----
+===CompuLab Automatic Installation System 2.0.0 (Mar 06 2018)===
+Press any key to cancel installation   0
+=== Installation Target: eMMC ===
+===Installing OS===
+* Updating partitions
+* Formatting partitions
+* Copying kernel files
+* Extracting user space rootfs.tar.bz2
+ 158MiB 0:02:07 [1.24MiB/s] [================================>] 100%
+Please remove installation SD card ...
+Press any key to cancel restart   0
+----

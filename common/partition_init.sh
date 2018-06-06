@@ -18,11 +18,11 @@ UBIFORAMT=$(which ubiformat &>/dev/null && which ubiformat || echo -n 'echo ubif
 UBIMKVOL=$(which ubimkvol &>/dev/null && which ubimkvol || echo -n 'echo ubimkvol')
 DD=$(which dd &>/dev/null && which dd || echo -n 'echo dd')
 SFDISK=$(which sfdisk &>/dev/null && which sfdisk || echo -n 'echo sfdisk')
-SFDISK_CONF_FILE_BLOCK=$(dirname $BASH_SOURCE)/sfdisk-block.conf
+SFDISK_CONF_FILE_BLOCK=/tmp/sfdisk-block.conf
 
 create_partitions() {
 	announce "Updating partitions"
-	if [ ! -z ${NAND_PARAMS} ];then
+	if [ ${DESTINATION_MEDIA_TYPE} == "nand" ];then
 		return 0
 	fi
 	mdev -s 1>&- 2>&-
@@ -36,11 +36,12 @@ create_partitions() {
 			${DD} if=/dev/zero of=${DESTINATION_MEDIA} bs=1M count=1
 		return ${ret}
 	fi
-	${SFDISK} -f ${DESTINATION_MEDIA} -uM < ${SFDISK_CONF_FILE_BLOCK} &> /dev/null
+	extract_partitions_parameters || return $?
+	${SFDISK} -uM -f ${DESTINATION_MEDIA} < ${SFDISK_CONF_FILE_BLOCK} &> /dev/null
 	ret=$?; if [ ${ret} -ne 0 ];then
 		err_msg ${FUNCNAME[0]}: failed to create partitions: ${ret}
 		err_msg ${FUNCNAME[0]}: failed cmd: \
-			${SFDISK} -f ${DESTINATION_MEDIA} -uM < ${SFDISK_CONF_FILE_BLOCK}
+			${SFDISK} -uM -f ${DESTINATION_MEDIA} \< ${SFDISK_CONF_FILE_BLOCK}
 		return ${ret}
 	fi
 	# Refresh the device nodes
@@ -52,7 +53,7 @@ create_partitions() {
 
 format_partitions() {
 	announce "Formatting partitions"
-	if [ ! -z ${NAND_PARAMS} ];then
+	if [ ${DESTINATION_MEDIA_TYPE} == "nand" ];then
 		format_partitions_nand
 		return $?
 	fi
@@ -73,7 +74,7 @@ format_partitions() {
 
 
 flash_erase_f() {
-	announce "$FUNCNAME [ $@ ]"
+	debug_msg "$FUNCNAME [ $@ ]"
 	dev=$1; off=$2; cnt=$3
 	if [ -z $dev ] || [ -z $cnt ] || [ -z $off ] ; then
 		err_msg ${FUNCNAME[0]}: missing parameters: dev=${dev} cnt=${cnt} off=${off}
@@ -89,32 +90,42 @@ flash_erase_f() {
 }
 
 format_partitions_nand() {
-	MTD_DEV_KERNEL=`echo $NAND_PARAMS | cut -d":" -f3`
-	if [ -z $MTD_DEV_KERNEL ];then
-		err_msg ${FUNCNAME[0]}: variable MTD_DEV_KERNEL is empty
+	MTD_DEV_KERNEL=`grep nand_kernel_mtd_dev= ${config_file} | cut -d= -f2-`
+	if [ -z ${MTD_DEV_KERNEL} ];then
+		err_msg ${FUNCNAME[0]}: missing configuration: nand_kernel_mtd_dev
 		return 1
 	fi
 	flash_erase_f ${MTD_DEV_KERNEL} 0 0 || return $?
-	mtd_dev_root=`echo $NAND_PARAMS | cut -d":" -f5`
-	UBI_DEV_ROOT=`echo $NAND_PARAMS | cut -d":" -f6`
-	UBI_VOLNAME_ROOT=`echo $NAND_PARAMS | cut -d":" -f7`
-	if [ -z ${mtd_dev_root} ] || [ -z ${UBI_DEV_ROOT} ] || [ -z ${UBI_VOLNAME_ROOT} ];then
-		err_msg ${FUNCNAME[0]}: invalid NAND parameters: NAND_PARAMS=${NAND_PARAMS}
+	mtd_dev_root=`grep nand_rootfs_mtd_dev= ${config_file} | cut -d= -f2-`
+	if [ -z ${mtd_dev_root} ];then
+		err_msg ${FUNCNAME[0]}: missing configuration: nand_rootfs_mtd_dev
+		return 1
+	fi
+	UBI_DEV_ROOT=`grep nand_rootfs_ubi_dev= ${config_file} | cut -d= -f2-`
+	if [ -z ${UBI_DEV_ROOT} ];then
+		err_msg ${FUNCNAME[0]}: missing configuration: nand_rootfs_ubi_dev
+		return 1
+	fi
+	UBI_VOLNAME_ROOT=`grep nand_rootfs_ubi_vol= ${config_file} | cut -d= -f2-`
+	if [ -z ${UBI_VOLNAME_ROOT} ];then
+		err_msg ${FUNCNAME[0]}: missing configuration: nand_rootfs_ubi_vol
 		return 1
 	fi
 	ubi_format ${mtd_dev_root} || return $?
 	ubi_attach ${mtd_dev_root} ${UBI_DEV_ROOT} || return $?
 	ubi_mkvol ${UBI_DEV_ROOT} ${UBI_VOLNAME_ROOT} || return $?
-	MTD_DEV_DTB=`echo $NAND_PARAMS | cut -d":" -f1`
-	if [ -z $MTD_DEV_DTB ];then
-                err_msg ${FUNCNAME[0]}: invalid NAND parameters: NAND_PARAMS=${NAND_PARAMS}
-		return 1
+	MTD_DEV_DTB=`grep nand_dtb_mtd_dev= ${config_file} | cut -d= -f2-`
+	# Device tree blob file is not mandatory
+	if [ -z ${MTD_DEV_DTB} ];then
+		return 0
 	fi
-	flash_erase_f ${MTD_DEV_DTB} 0 0 || return $?
+	if [ ${MTD_DEV_DTB} -ne ${MTD_DEV_KERNEL} ];then
+		flash_erase_f ${MTD_DEV_DTB} 0 0 || return $?
+	fi
 }
 
 ubi_format() {
-	announce "$FUNCNAME [ $@ ]"
+	debug_msg "$FUNCNAME [ $@ ]"
 	dev=$1
 	[ -z $dev ] && return
 	mtd="/dev/mtd"${dev}
@@ -127,7 +138,7 @@ ubi_format() {
 }
 
 ubi_mkvol() {
-	announce "$FUNCNAME [ $@ ]"
+	debug_msg "$FUNCNAME [ $@ ]"
 	ubi=$1; name=$2
 	[ -z $ubi ] || [ -z $name ] && return
 	ubi='/dev/ubi'${ubi}
@@ -136,5 +147,36 @@ ubi_mkvol() {
 		err_msg ${FUNCNAME[0]}: ubimkvol failure: ${ret}
 		err_msg ${FUNCNAME[0]}: failed cmd: ${UBIMKVOL} ${ubi} -m -N ${name}
 		return ${ret}
+	fi
+}
+
+# Convert the [ Block Device partitions ] section to sfdisk format
+extract_partitions_parameters() {
+	IFT=$'\r\n'
+	partition_list=( $(grep ^partition=[0-9]* ${CONFIG_FILE} | sort ) )
+	unset IFS
+	for (( i=0; i<=${#partition_list[*]} - 1; i++ )); do
+		read partition size boot type <<< $(IFS=":"; echo ${partition_list[i]})
+		if [ -z ${size} ]; then
+			syntax_error="${FUNCNAME[0]}: ${partition}: missing size parameter"
+		elif [ "$size" == "max" ]; then
+			size="+"
+		else
+			index=`expr index "$size" M`
+			if [ $index -gt 0 ]; then
+				size=${size%M}
+			else
+				index=`expr index "$size" G`
+				if [ $index -gt 0 ]; then
+					size=$((${size%G}*1024))
+				fi
+			fi
+		fi
+		[ "$boot" == "boot" ] && boot=",*"
+		printf "%s,%s,%s%s\n" "-" ${size} ${type} "$boot" >> /tmp/sfdisk-block.conf
+	done
+	if [ ! -z "${syntax_error}" ]; then
+		err_msg "${syntax_error}"
+		return 1
 	fi
 }

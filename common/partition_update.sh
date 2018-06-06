@@ -17,9 +17,9 @@ NANDWRITE=$(which nandwrite &>/dev/null && which nandwrite || echo -n 'echo nand
 
 copy_kernel_files() {
 	announce "Copying kernel files"
-	if [ ! -z ${NAND_PARAMS} ];then
+	if [ ${DESTINATION_MEDIA_TYPE} == "nand" ];then
 		copy_kernel_files_nand
-		return
+		return $?
 	fi
 	files='*.dtb zImage*'
 	for file in ${files};do
@@ -51,7 +51,7 @@ extract_userspace() {
 }
 
 nand_write() {
-	announce "$FUNCNAME [ $@ ]"
+	debug_msg "$FUNCNAME [ $@ ]"
 	dev=$1; src=$2; off=$3
 	if [ -z $dev ] || [ -z $src ] || [ -z $off ];then
 		err_msg ${FUNCNAME[0]}: invalid input parameters: dev=${dev} src={src} off={off}
@@ -67,19 +67,30 @@ nand_write() {
 }
 
 copy_kernel_files_nand() {
-	MTD_OFFS_KERNEL=`echo $NAND_PARAMS | cut -d":" -f4`
-	[ -z $MTD_DEV_KERNEL ] || [ -z $MTD_OFFS_KERNEL ] && return
+	MTD_OFFS_KERNEL=`grep nand_kernel_offset= ${CONFIG_FILE} | cut -d= -f2-`
+	if [ -z ${MTD_OFFS_KERNEL} ];then
+		MTD_OFFS_KERNEL=0
+	fi
 	file='zImage*'
 	stat ${SOURCE_MOUNT_PATH}/${file} &>/dev/null
 	[ $? -ne 0 ] && return
 	nand_write ${MTD_DEV_KERNEL} ${SOURCE_MOUNT_PATH}/${file} $MTD_OFFS_KERNEL || return $?
-	MTD_OFFS_DTB=`echo $NAND_PARAMS | cut -d":" -f2`
-	[ -z $MTD_DEV_DTB ] || [ -z $MTD_OFFS_DTB ] && return
-	files=`ls ${SOURCE_MOUNT_PATH}/*.dtb`
-	for file in ${files};do
-		[ ${file##*/} == "ramdisk.dtb" ] && continue
-		stat ${file} &>/dev/null
-		[ $? -ne 0 ] && continue
-		nand_write ${MTD_DEV_DTB} ${file} $MTD_OFFS_DTB || return $?
-	done
+	DTB_FILE=`grep dtb_file= ${CONFIG_FILE} | cut -d= -f2-`
+	# Device tree blob file is not mandatory
+	[ -z ${DTB_FILE} ] && return
+	MTD_DEV_DTB=`grep nand_dtb_mtd_dev= ${CONFIG_FILE} | cut -d= -f2-`
+	if [ -z ${MTD_DEV_DTB} ];then
+		err_msg ${FUNCNAME[0]}: missing configuration: nand_dtb_mtd_dev
+		return 1
+	fi
+	MTD_OFFS_DTB=`grep nand_dtb_mtd_offset= ${CONFIG_FILE} | cut -d= -f2-`
+	if [ -z ${MTD_OFFS_DTB} ];then
+		MTD_OFFS_DTB=0
+	fi
+	DTB_FILE=${SOURCE_MOUNT_PATH}/${DTB_FILE}
+	if [ ! -f ${DTB_FILE} ]; then
+		err_msg ${FUNCNAME[0]}: device tree blob file ${DTB_FILE} not found
+		return 1
+	fi
+	nand_write ${MTD_DEV_DTB} ${DTB_FILE} $MTD_OFFS_DTB || return $?
 }

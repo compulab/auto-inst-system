@@ -16,6 +16,7 @@
 NORMAL="\033[0m"
 GREEN="\033[32;1m"
 RED="\033[31;1m"
+BLUE="\033[34;1m"
 
 title() {
 	echo -e "${GREEN}===${1}===${NORMAL}"
@@ -23,6 +24,11 @@ title() {
 
 announce() {
 	echo -e "${GREEN}* ${NORMAL}${@}"
+}
+
+debug_msg() {
+	[ -z ${DEBUG_INSTALL} ] && return
+	echo -e "${BLUE}* ${NORMAL}${@}"
 }
 
 function err_msg() {

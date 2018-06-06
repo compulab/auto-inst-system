@@ -18,3 +18,4 @@
 . "${SCR_PATH}/mount.sh"
 . "${SCR_PATH}/partition_update.sh"
 . "${SCR_PATH}/progress.sh"
+. "${SCR_PATH}/board_param.sh"

@@ -19,7 +19,9 @@ SCR_PATH=$(dirname $BASH_SOURCE)
 mpoint=/tmp/_mount
 tarfile=rootfs.tar.bz2
 mfile=install.ext2
-board_param_file=${SCR_PATH}/board_params.sh
+board_param_file=/tmp/board_params.sh
+source_mount_path=/mnt/install
+config_file=${source_mount_path}/config
 
 destination=""
 avail_devs=""
@@ -29,15 +31,29 @@ min_size_inb=2097152
 
 . "${SCR_PATH}/functions.sh"
 
-# Extract NAND parameters from cmdline
-nand_params=`cat /proc/cmdline | tr " " "\n" | grep nand | cut -d"=" -f2`
-if [ ! -z $nand_params ];then
+# Verify platform configuration file existence
+if [ ! -f ${config_file} ];then
+	err_msg Platform configuration file is missing
+	exit 1
+fi
+
+# Get the target list
+target_media=(`grep target_media= ${config_file} | cut -d= -f2-`)
+
+# Add NAND to the available media list, if all of the following conditions apply:
+# * NAND is in the target media list
+# * The required MTD partitions exist
+nand_flag=`echo ${target_media[@]} | grep -c nand`
+if [ ${nand_flag} -ge 1 ];then
 	mtd_parts_no=`cat /proc/mtd | grep -cE "(((kernel|linux)|dtb)|rootfs)"`
 	if [ ${mtd_parts_no} -ge 2 ];then
-		avail_devs="mtd"
+		avail_devs="nand"
 		((cnt++))
 	fi
 fi
+
+# Extract debug flag from the platform configuration file
+debug_install=`grep debug_install= ${config_file} | cut -d= -f2-`
 
 all_devs=$(ls /sys/class/block/*/capability | awk -F"/" '($5~/sd|mmc/)&&($0=$5)')
 mkdir -p ${mpoint}
@@ -79,36 +95,41 @@ avail_devs="${avail_devs#"${avail_devs%%[![:space:]]*}"}"
 if [ $cnt -eq 0 ];then
 	err_msg $(basename $BASH_SOURCE): no destination media found
 	return 1
-elif [ $cnt -eq 1 ];then
-	destination="/dev/"${avail_devs}
-else
-	select_string=$(echo ${avail_devs}; echo "<<")
-	PS3="select a destination device > "
-	select i in $select_string; do
-		case $i in
-			"<<")
-			exit
-			break
-			;;
-			*)
-			destination="/dev/"$i
-			echo "destination device is "${destination}
-			break
-			;;
-		esac
-	done
 fi
+
+# Convert the available list to array
+avail_devs=($avail_devs)
+
+# Translate target media type to target media device
+tranlate_target_media
+
+for (( i=0; i<${#target_media_trans[*]}; i++ )); do
+	if [[ ${avail_devs[@]} =~ ${target_media_trans[i]} ]]; then
+		destination=${target_media_trans[i]}
+		destination_type=${target_media[i]}
+		break
+	fi
+done
+
+if [ -z $destination ]; then
+	err_msg $(basename $BASH_SOURCE): no target media found
+	err_msg Available media: ${avail_devs[@]}
+	return 1
+fi
+
+destination="/dev/"${destination}
+
 part_pref=$([[ ${destination} =~ "mmc" ]] &&  echo -n "p")
 
-if [ $destination != "/dev/mtd" ];then
-	nand_params=
-fi
-
 cat << eof > ${board_param_file}
-SOURCE_MEDIA=${source}
+SOURCE_MOUNT_PATH=${source_mount_path}
 DESTINATION_MEDIA=${destination}
+DESTINATION_MEDIA_TYPE=${destination_type}
 DESTINATION_KERNEL_MEDIA=${destination}${part_pref}1
 DESTINATION_FILESYSTEM_MEDIA=${destination}${part_pref}2
 FILESYSTEM_ARCHIVE_NAME=${tarfile}
-NAND_PARAMS=${nand_params}
+CONFIG_FILE=${config_file}
+DEBUG_INSTALL=${debug_install}
 eof
+
+title " Installation Target: ${destination_type} "
