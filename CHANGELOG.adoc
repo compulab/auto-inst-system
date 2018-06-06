@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on http://keepachangelog.com/[Keep a Changelog]
 and this project adheres to http://semver.org/[Semantic Versioning].
 
+== <<v2.0.0>> - 2018-03-08
+=== Changed
+* Move U-Boot environment changes to Linux.
+
+=== Added
+* Configuration file per target
+* Installation media list, sorted by priority
+
 == <<v1.0.1>> - 2017-09-03
 === Changed
 * Converted README to AsciiDoc format.
@@ -15,3 +23,5 @@ and this project adheres to http://semver.org/[Semantic Versioning].
 
 [[v1.0.1]]
 [v1.0.1]: https://github.com/compulab/auto-inst-system/compare/v1.0.0…v1.0.1
+[[v2.0.0]]
+[v2.0.0]: https://github.com/compulab/auto-inst-system/compare/v1.0.1…v2.0.0
